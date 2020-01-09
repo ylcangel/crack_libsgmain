@@ -1,4 +1,4 @@
-# crack_libsg
+# crack_libsgmian
  Reverse libsgmain
  
  
