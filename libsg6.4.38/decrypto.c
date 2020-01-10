@@ -40,7 +40,7 @@ int decrypto(struct dcryptdata* decryptdata_, int* a2) {
       result = ((int (__fastcall *)(void *))unk_A409A4F8)(decryptdata_->v);
       break;
     case 3u:
-      result = ((int (__fastcall *)(struct vdata *, struct vdata *))unk_A409DEEC)(decryptdata_->key, decryptdata_->cryptedata);
+      result = ((int (__fastcall *)(struct vdata *, struct vdata *))call_rc4)(decryptdata_->key, decryptdata_->cryptedata);
       break;
     case 0x14u:
       result = ((int (__fastcall *)(void *, struct vdata *))unk_A409E31C)(decryptdata_->v, decryptdata_->cryptedata);
