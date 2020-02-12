@@ -40,25 +40,25 @@ int decrypto(struct dcryptdata* decryptdata_, int* a2) {
       result = ((int (__fastcall *)(void *))unk_A409A4F8)(decryptdata_->v);
       break;
     case 3u:
-      result = ((int (__fastcall *)(struct vdata *, struct vdata *))call_rc4)(decryptdata_->key, decryptdata_->cryptedata);
+      result = ((int (__fastcall *)(struct vdata *, struct vdata *))unk_A409DEEC)(decryptdata_->key, decryptdata_->cryptedata);
       break;
     case 0x14u:
-      result = ((int (__fastcall *)(void *, struct vdata *))unk_A409E31C)(decryptdata_->v, decryptdata_->cryptedata);
+      result = ((int (__fastcall *)(void *, struct vdata *))call_uncompress)(decryptdata_->v, decryptdata_->cryptedata);
       break;
     case 0x15u:
-      result = ((int (__fastcall *)(void *, struct vdata *, _DWORD *))unk_A409A998)(decryptdata_->v, decryptdata_->cryptedata, v4);
+      result = ((int (__fastcall *)(void *, struct vdata *, _DWORD *))unk_A409A998)(decryptdata_->v, decryptdata_->cryptedata, 820000);
       break;
     case 0x16u:
-      result = ((int (__fastcall *)(struct vdata *))unk_A409AF3C)(decryptdata_->cryptedata);
+      result = ((int (__fastcall *)(struct vdata *))call_md5)(decryptdata_->cryptedata);
       break;
     case 0x17u:
       result = ((int (__fastcall *)(struct vdata *, struct vdata *))unk_A409AE54)(decryptdata_->key, decryptdata_->cryptedata);
       break;
     case 0x18u:
-      result = ((int (__fastcall *)(struct vdata *))unk_A409BD48)(decryptdata_->cryptedata);
+      result = ((int (__fastcall *)(struct vdata *))call_sha1)(decryptdata_->cryptedata);
       break;
     case 0x19u:
-      result = ((int (__fastcall *)(struct vdata *))unk_A409DE84)(decryptdata_->cryptedata);
+      result = ((int (__fastcall *)(struct vdata *))call_sha256)(decryptdata_->cryptedata);
       break;
     case 0x1Au:
       result = (int)sub_A409E338((int)decryptdata_->v, (int)decryptdata_->v1, (int)decryptdata_->cryptedata, v4);

@@ -4,8 +4,8 @@ struct data {
 
 struct vdata{
 	struct data* data;
-	int data_len;
-	int data_mlen; // = len + 1
+	int data_len; // 前一次记录的内存大小
+	int data_mlen; // 占总内存大小
 	void* f1;
 	void* f2;
 	void* f3;
@@ -38,7 +38,7 @@ struct vdata*  create_vdata(int datalen) {
 			vdata->data_len = 0;
 			vdata->data = data;
 			vdata->f1 = make_data;
-			vdata->f3 = sub_B3BB1392;
+			vdata->f3 = extend_vdata;
 			vdata->f4 = sub_B3BB13F4;
 			vdata->f5 = sub_B3BB1412;
 			vdata->f6 = sub_B3BB144A;

@@ -1,31 +1,26 @@
-vdata * make_data(vdata *dstdata, int databuf_, signed int datalen_)
-{
-  vdata *v3; // r5@1
-  signed int datalen; // r4@1
-  int databuf; // r6@1
-  __int64 v6; // r0@4 
-              
-//      va = ma + 4 = 0;
-//      vb = ma->data_mlen = 0x11
-//      memcpy(r1, mb, 0x10); 第一次mb = "DcO/lcK+h?m3c*q@"
-//      ma->data_len = data_mlen -1;
+vdata* make_data(vdata *old_vdata, char* databuf, int new_len)
+{ // 创建数据
+  // vdata结构相当于一个数据容器
+  // 完成向容器中添加数据
+  
+    // 第一次执行示例      
+	//      va = ma + 4 = 0;
+	//      vb = ma->data_mlen = 0x11
+	//      memcpy(r1, mb, 0x10); 第一次mb = "DcO/lcK+h?m3c*q@"
+	//      ma->data_len = data_mlen -1;
 
-  v3 = dstdata;
-  datalen = datalen_;
-  databuf = databuf_;
-  if ( dstdata && databuf_ && datalen_ >= 1 )
-  {
-    v6 = *(_QWORD *)&dstdata->data_len;
-    if ( (signed int)v6 + datalen_ >= SHIDWORD(v6) )
-    {
-      dstdata = (vdata *)sub_8C392((void **)&v3->data, datalen_);
-      if ( (signed int)dstdata < 0 )
-        return dstdata;
-      LODWORD(v6) = v3->data_len;
+  if ( old_vdata && databuf && new_len >= 1 ) {
+    old_data_len = old_vdata->data_len;
+	
+    if ( (int)(old_data_len + new_len) >= old_vdata->data_mlen ) {
+		
+      old_vdata = (vdata *)extend_vdata(old_vdata, new_len);
+      if ( (int)old_vdata < 0 )
+        return old_vdata;
     }
-    _aeabi_memcpy((char *)v3->data + v6, databuf, datalen);
-    dstdata = (vdata *)(v3->data_len + datalen);
-    v3->data_len = (int)dstdata;
+	
+    memcpy((char *)old_vdata->data + old_data_len, databuf, new_len);
+    old_vdata->data_len = (int)(old_vdata->data_len + new_len);
   }
-  return dstdata;
+  return old_vdata;
 }
