@@ -581,30 +581,7 @@ LOAD:0000497C 03 C0 BD E8                 LDMFD           SP!, {R0,R1,LR,PC} // 
 等同於僞代碼：
 arg_addr = [lr + [lr]]
 r{0-3} = arg_addr
----------------------------------------------------------------------------------------------------------------
-case 8:
-LOAD:0000B26A 21 E1                       B               sub_B4B0->
-	LOAD:0000B4C6 51 E0                       B               loc_B56C ->
-	LOAD:0000B4C6 51 E0                       B               loc_B56C ->
-	create_global_objects , jint、jboolean， jstring
-
-
-sub_B1EC ->
-LOAD:0000B1F2 B1 E1                       B               loc_B558
-LOAD:0000B55E DD E7                       B               loc_B51C
-LOAD:0000B51E 68 F0 81 FC                 BL              sub_73E24
-
-
-LOAD:00072DBC             loc_72DBC
-sub_73E24 -> sub_73E56
-
-sub_7AF78
-
-
-LOAD:0000B592 CF E7                       B               loc_B534 -> 
-LOAD:0000B534 67 F0 CA FB                 BL              sub_72CCC
-
-----------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------
 程序邏輯：
 libsgmainso_6.4.36.so B3F2D000 B3FB6000 R . X D . byte 00 public CODE 32 00 00
 sp = BE903640  B1200284  debug038:B1200284
