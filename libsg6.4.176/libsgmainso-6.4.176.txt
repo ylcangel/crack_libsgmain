@@ -99,11 +99,12 @@ libart.so:B4DD560E BLX             R7 ; // 对应文件偏移1e660e
 
 libsgmainso_6.4.176.so:A3FAD9C4 BLX             R2 = FindClass
 com/taobao/wireless/security/adapter/common/HttpUtil
-这里就出现了一个问题， 因为我前n次都是通过手动加载该so进行调试的，我代码中没有加载任何sgmain的类，
-所以后续逻辑会出现问题，但还好没马上停止逻辑，我先手动设置该变量不为空，先调试着）
 调用art::CheckJNI::NewGlobalRef(_JNIEnv *, _jobject *)创建HttpUtil的NewGlobalRef
 后续逻辑就没了，因为vm中没有该class
-// TODO 后续用真实的app加载，在补上
+ 解密出字符串"sendSyncHttpGetRequestBridge"
+調用env->getStaticMethodID
+解密出數據"sendSyncHttpPostRequestBridge"
+在解密出"downloadFileBridge"
 
 
 # 进入解密
@@ -276,6 +277,10 @@ libsgmainso_6.4.176.so:A40AA9FE BLX             memcpy
 libsgmainso_6.4.176.so:A40AAA06 BL              free__
 继续free掉之前的vdata结构体
 
-
 com/taobao/wireless/security/adapter/umid/UmidAdapter这个类也没有，又遇到上面提到的问题
-// TODO 调试真app
+調用env->findclass找到UmidAdapterClass,調用env->NewGlobalRef UmidAdapterRef
+調用env->DeleteLocalRef, 刪除UmidAdapterClass，wtf？
+BL    goto_decrypt_entry(, , 16)
+解密出"umidInitAdapter"
+調用env->getStaticMethodID(UmidAdapterRef, "umidInitAdapter")
+繼續解密出"com/taobao/wireless/security/adapter/JNICLibrary"
