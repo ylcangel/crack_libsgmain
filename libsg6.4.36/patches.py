@@ -1,0 +1,49 @@
+patches = {}
+patches[0] = (0x00, 0xbf, 0x01, 0x48, 0x00, 0x68, 0x02, 0xe0)
+patches[1] = (0x00, 0xbf, 0x01, 0x49, 0x09, 0x68, 0x02, 0xe0)
+patches[2] = (0x00, 0xbf, 0x01, 0x4a, 0x12, 0x68, 0x02, 0xe0)
+patches[3] = (0x00, 0xbf, 0x01, 0x4b, 0x1b, 0x68, 0x02, 0xe0)
+patches[4] = (0x00, 0xbf, 0x01, 0x4c, 0x24, 0x68, 0x02, 0xe0)
+patches[5] = (0x00, 0xbf, 0x01, 0x4d, 0x2d, 0x68, 0x02, 0xe0)
+patches[8] = (0x00, 0xbf, 0xdf, 0xf8, 0x06, 0x80, 0xd8, 0xf8, 0x00, 0x80, 0x01, 0xe0)
+patches[9] = (0x00, 0xbf, 0xdf, 0xf8, 0x06, 0x90, 0xd9, 0xf8, 0x00, 0x90, 0x01, 0xe0)
+patches[10] = (0x00, 0xbf, 0xdf, 0xf8, 0x06, 0xa0, 0xda, 0xf8, 0x00, 0xa0, 0x01, 0xe0)
+patches[11] = (0x00, 0xbf, 0xdf, 0xf8, 0x06, 0xb0, 0xdb, 0xf8, 0x00, 0xb0, 0x01, 0xe0)
+
+ea = here()
+
+if (Word(ea) == 0xb082 #SUB SP, SP, #8
+        and Word(ea + 2) == 0xb503): #PUSH {R0,R1,LR}
+    if GetOpType(ea + 4, 0) == 7:
+        pop = GetManyBytes(ea + 12, 4, 0)
+        if ord(pop[1]) == 0xbc:
+            register = -1
+            r = Byte(ea + 12)
+            for i in range(8):
+                if r == (1 << i):
+                    register = i
+                    break
+            if register == -1:
+                print "Unable to detect register"
+            else:
+                address = Dword(ea + 8) + ea + 8
+                for b in patches[register]:
+                    PatchByte(ea, b)
+                    ea += 1
+                if ea % 4 != 0:
+                    ea += 2
+                PatchDword(ea, address)
+        elif ord(pop[:3]) == 0x4f85d:
+            register = ord(pop[3]) >> 4
+            if register in patches:
+                address = Dword(ea + 8) + ea + 8
+                for b in patches[register]:
+                    PatchByte(ea, b)
+                    ea += 1
+                PatchDword(ea, address)
+        else:
+            print "POP instruction not found"
+    else:
+        print "Wrong operand type on +4:", GetOpType(ea + 4, 0)
+else:
+    print "Unable to detect first instructions"

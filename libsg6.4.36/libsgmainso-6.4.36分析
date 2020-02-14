@@ -1,0 +1,694 @@
+libsgmainso-6.4.36分析
+
+//////////////////////////////////////////////////////////////
+
+LOAD:0000B110 JNI_OnLoad
+LOAD:0000B110
+LOAD:0000B110 var_4           = -4
+LOAD:0000B110 07 B5          PUSH            {R0-R2,LR}
+LOAD:0000B112 07 A1          ADR             R1, 0xB130 // B130
+LOAD:0000B114 09 00          MOVS            R1, R1
+LOAD:0000B116 05 39          SUBS            R1, #5 // B130 - 0X5 = B12B
+LOAD:0000B118 00 00          MOVS            R0, R0
+LOAD:0000B11A 08 00          MOVS            R0, R1 // B12B
+LOAD:0000B11C 12 00          MOVS            R2, R2
+LOAD:0000B11E 10 30          ADDS            R0, #0x10 // B12B + 0X10 = B13B
+LOAD:0000B120 03 90          STR             R0, [SP,#0xC] // SP + 0XC = R0 = B13B
+LOAD:0000B122 07 BD          POP             {R0-R2,PC} // PC = sp + 0xc = B13B, thumb指令跳转到0000B13A 
+
+执行完上述代码，r0,r1,r2,lr值不变，变的仅仅是pc，cpu会马上执行pc处的指令
+
+=================================================================================================
+代码段共56处匹配这样的特征，想办法patch这样的逻辑
+patch 后
+LOAD:0000B110 JNI_OnLoad
+LOAD:0000B122                 B               loc_B13A
+===================================================================================================
+
+因为是thumb指令，地址起始奇数
+LOAD:0000B13A ; ---------------------------------------------------------------------------
+特徵
+LOAD:0000B13A                 CODE16
+LOAD:0000B13A                 PUSH            {R0,R1,LR}
+LOAD:0000B13C                 LDR             R0, =8
+LOAD:0000B13E                 LDR             R1, loc_B140 // 沒有意義， nop掉
+LOAD:0000B140
+LOAD:0000B140 loc_B140     
+LOAD:0000B140                 BLX             sub_494C    /// 分发器
+LOAD:0000B140 ; ---------------------------------------------------------------------------
+LOAD:0000B144 dword_B144      DCD 8            
+-------------------------------------------------------------------------------------------
+步長表，共40個跳轉， 計算pc時的纍加值：                                                  ; 我現在嚴重懷疑這個表除了第一次用到，後面到底有沒有用到，還是為了迷惑；
+LOAD:0000B144                                            ; 還是說要按照這個表去修復jni_onload
+LOAD:0000B144                                            ; 如果是的話，第一個index = 8
+LOAD:0000B144                                            ; 找到8對應的偏移，它下一個index即下一個邏輯
+LOAD:0000B148 A8 00 00 00                 DCD 0xA8       ; b1ec
+LOAD:0000B14C BC 00 00 00                 DCD 0xBC       ; b200
+LOAD:0000B150 CC 00 00 00                 DCD 0xCC       ; b120
+LOAD:0000B154 E0 00 00 00                 DCD 0xE0       ; b224
+LOAD:0000B158 F0 00 00 00                 DCD 0xF0       ; b234
+LOAD:0000B15C 00 01 00 00                 DCD 0x100      ; b244
+LOAD:0000B160 10 01 00 00                 DCD 0x110      ; b254
+LOAD:0000B164 20 01 00 00                 DCD 0x120      ; b264 偏移為8，表值為0x120，第一個對應lr + off = b144 + 0x120
+LOAD:0000B168 34 01 00 00                 DCD 0x134      ; b278
+LOAD:0000B16C 4C 01 00 00                 DCD 0x14C      ; b290
+LOAD:0000B170 68 01 00 00                 DCD 0x168      ; b2ac
+LOAD:0000B174 7C 01 00 00                 DCD 0x17C      ; b2c0
+LOAD:0000B178 94 01 00 00                 DCD 0x194      ; b2d8
+LOAD:0000B17C AC 01 00 00                 DCD 0x1AC      ; b2f0
+LOAD:0000B180 D4 01 00 00                 DCD 0x1D4      ; b318
+LOAD:0000B184 EC 01 00 00                 DCD 0x1EC      ; b330
+LOAD:0000B188 08 02 00 00                 DCD 0x208      ; b34c
+LOAD:0000B18C 24 02 00 00                 DCD 0x224      ; b368
+LOAD:0000B190 40 02 00 00                 DCD 0x240      ; b384
+LOAD:0000B194 68 02 00 00                 DCD 0x268      ; b3ac
+LOAD:0000B198 7C 02 00 00                 DCD 0x27C      ; b3c0
+LOAD:0000B19C 90 02 00 00                 DCD 0x290      ; b3d4
+LOAD:0000B1A0 A4 02 00 00                 DCD 0x2A4      ; b3e0
+LOAD:0000B1A4 B8 02 00 00                 DCD 0x2B8      ; b3fc
+LOAD:0000B1A8 CC 02 00 00                 DCD 0x2CC      ; b410
+LOAD:0000B1AC E0 02 00 00                 DCD 0x2E0      ; b424
+LOAD:0000B1B0 FC 02 00 00                 DCD 0x2FC      ; b440
+LOAD:0000B1B4 10 03 00 00                 DCD 0x310      ; b454
+LOAD:0000B1B8 24 03 00 00                 DCD 0x324      ; b468
+LOAD:0000B1BC 3C 03 00 00                 DCD 0x33C      ; b480
+LOAD:0000B1C0 58 03 00 00                 DCD 0x358      ; b49c
+LOAD:0000B1C4 6C 03 00 00                 DCD 0x36C      ; b4b0
+LOAD:0000B1C8 90 03 00 00                 DCD 0x390      ; b4d4
+LOAD:0000B1CC AC 03 00 00                 DCD 0x3AC      ; b4f0
+LOAD:0000B1D0 C4 03 00 00                 DCD 0x3C4      ; b508
+LOAD:0000B1D4 D8 03 00 00                 DCD 0x3D8      ; b51c
+LOAD:0000B1D8 F0 03 00 00                 DCD 0x3F0      ; b534
+LOAD:0000B1DC 14 04 00 00                 DCD 0x414      ; b558
+LOAD:0000B1E0 28 04 00 00                 DCD 0x428      ; b56c
+LOAD:0000B1E4 40 04 00 00                 DCD 0x440      ; b584
+LOAD:0000B1E8 5C 04 00 00                 DCD 0x45C      ; b5a0
+-------------------------------------------------------------------------------------------------------------
+以第一次挑戰為例：
+LOAD:0000494C sub_494C                              
+LOAD:0000494C arg_8           =  8
+LOAD:0000494C                 BIC             R1, LR, #1  // LR = B144 , 最低一位清零  R1 还是B144
+//LOAD:0000B164    DCD 0x120
+LOAD:00004950 00 11 91 E7     LDR  R1, [R1,R0,LSL#2] 	  // R1 = [B144 + 0x8 << 2] =  [B144 + 0X20] = [B164] = 0x120
+LOAD:00004954                 ADD             R1, R1, LR  // R1 = B144 + 0x120 = B264
+LOAD:00004958                 LDR             LR, [SP,#8] // LR = B144
+LOAD:0000495C                 STR             R1, [SP,#8] // B264
+LOAD:00004960 03 80 BD E8     LDMFD           SP!, {R0,R1,PC} // R0 = [SP], R1 = [SP + 4], PC = [SP + 8] 跳转到B264
+隨便列舉幾個跳轉：
+1 = 0xb264
+2 = 0x1511c
+3 = 0x24764
+4 = 0x5f2ac
+5 = 0x71e70
+6 = 0x72dbc
+7 = 0x9a14
+...
+---------------------------------------------------------------------------------------------
+其他調整輔助指令特徵：
+LOAD:0000494C
+LOAD:0000494C             ; =============== S U B R O U T I N E =======================================
+LOAD:0000494C
+LOAD:0000494C
+LOAD:0000494C             dyna_pc                                 ; CODE XREF: j_dyna_pcj
+LOAD:0000494C                                                     ; LOAD:loc_4C20p ...
+LOAD:0000494C
+LOAD:0000494C             arg_8           =  8
+LOAD:0000494C
+LOAD:0000494C 01 10 CE E3                 BIC             R1, LR, #1
+LOAD:00004950 00 11 91 E7                 LDR             R1, [R1,R0,LSL#2] ; lr(最低位清零) + (r0 << 2)
+LOAD:00004954 0E 10 81 E0                 ADD             R1, R1, LR
+LOAD:00004958 08 E0 9D E5                 LDR             LR, [SP,#8]
+LOAD:0000495C 08 10 8D E5                 STR             R1, [SP,#8]
+LOAD:00004960 03 80 BD E8                 LDMFD           SP!, {R0,R1,PC} ; 1 = 0xb264
+LOAD:00004960             ; End of function dyna_pc               ; 2 = 0x1511c
+LOAD:00004960                                                     ; 3 = 0x24764
+LOAD:00004960                                                     ; 4 = 0x5f2ac
+LOAD:00004960                                                     ; 5 = 0x71e70
+LOAD:00004960                                                     ; 6 = 0x72dbc
+LOAD:00004960                                                     ; 7 = 0x9a14
+LOAD:00004960                                                     ; ...
+LOAD:00004964
+LOAD:00004964             ; =============== S U B R O U T I N E =======================================
+LOAD:00004964
+LOAD:00004964             ; 完成pc = pc + 8
+LOAD:00004964             ; 待彈出寄存器值為 lr + [lr]
+LOAD:00004964             ; 目的是完成動態生成函數參數
+LOAD:00004964
+LOAD:00004964             dyna_mkarg                              ; CODE XREF: sub_4ADC:loc_4AE0j
+LOAD:00004964                                                     ; LOAD:00004D16p ...
+LOAD:00004964
+LOAD:00004964             anonymous_0     =  0
+LOAD:00004964             arg_C           =  0xC
+LOAD:00004964             arg_10          =  0x10
+LOAD:00004964
+LOAD:00004964 01 00 CE E3                 BIC             R0, LR, #1
+LOAD:00004968 00 10 90 E5                 LDR             R1, [R0]
+LOAD:0000496C 01 10 90 E7                 LDR             R1, [R0,R1]
+LOAD:00004970 04 E0 8E E2                 ADD             LR, LR, #4
+LOAD:00004974 0C E0 8D E5                 STR             LR, [SP,#0xC] ; pc = lr + 4 ,下一條指令処
+LOAD:00004978 10 10 8D E5                 STR             R1, [SP,#0x10] ; 後面pop 寄存器的值
+LOAD:0000497C 03 C0 BD E8                 LDMFD           SP!, {R0,R1,LR,PC} ; pc =  pc + 8
+LOAD:0000497C
+LOAD:00004980
+LOAD:00004980             ; =============== S U B R O U T I N E =======================================
+LOAD:00004980
+LOAD:00004980
+LOAD:00004980             sub_4980                                ; CODE XREF: sub_4ABC:loc_4AC0j
+LOAD:00004980
+LOAD:00004980             arg_8           =  8
+LOAD:00004980
+LOAD:00004980 01 10 CE E3                 BIC             R1, LR, #1
+LOAD:00004984 00 11 91 E7                 LDR             R1, [R1,R0,LSL#2]
+LOAD:00004988 81 00 8E E0                 ADD             R0, LR, R1,LSL#1
+LOAD:0000498C 08 E0 9D E5                 LDR             LR, [SP,#arg_8]
+LOAD:00004990 08 00 8D E5                 STR             R0, [SP,#arg_8]
+LOAD:00004994 03 80 BD E8                 LDMFD           SP!, {R0,R1,PC}
+LOAD:00004994             ; End of function sub_4980
+LOAD:00004994
+LOAD:00004998
+LOAD:00004998             ; =============== S U B R O U T I N E =======================================
+LOAD:00004998
+LOAD:00004998
+LOAD:00004998             sub_4998                                ; CODE XREF: sub_4AC4:loc_4AC8j
+LOAD:00004998                                                     ; LOAD:000098FCp ...
+LOAD:00004998
+LOAD:00004998             arg_8           =  8
+LOAD:00004998
+LOAD:00004998 01 00 CE E3                 BIC             R0, LR, #1
+LOAD:0000499C 00 10 90 E5                 LDR             R1, [R0]
+LOAD:000049A0 0E 10 81 E0                 ADD             R1, R1, LR
+LOAD:000049A4 08 E0 9D E5                 LDR             LR, [SP,#arg_8]
+LOAD:000049A8 08 10 8D E5                 STR             R1, [SP,#arg_8]
+LOAD:000049AC 03 80 BD E8                 LDMFD           SP!, {R0,R1,PC}
+LOAD:000049AC             ; End of function sub_4998
+LOAD:000049AC
+LOAD:000049B0
+LOAD:000049B0             ; =============== S U B R O U T I N E =======================================
+LOAD:000049B0
+LOAD:000049B0
+LOAD:000049B0             sub_49B0
+LOAD:000049B0
+LOAD:000049B0             arg_C           =  0xC
+LOAD:000049B0             arg_10          =  0x10
+LOAD:000049B0
+LOAD:000049B0 01 00 CE E3                 BIC             R0, LR, #1
+LOAD:000049B4 00 10 90 E5                 LDR             R1, [R0]
+LOAD:000049B8 00 10 81 E0                 ADD             R1, R1, R0
+LOAD:000049BC 04 E0 8E E2                 ADD             LR, LR, #4
+LOAD:000049C0 0C E0 8D E5                 STR             LR, [SP,#arg_C]
+LOAD:000049C4 10 10 8D E5                 STR             R1, [SP,#arg_10]
+LOAD:000049C8 03 C0 BD E8                 LDMFD           SP!, {R0,R1,LR,PC}
+LOAD:000049C8             ; End of function sub_49B0
+LOAD:000049C8
+LOAD:000049CC
+LOAD:000049CC             ; =============== S U B R O U T I N E =======================================
+LOAD:000049CC
+LOAD:000049CC
+LOAD:000049CC             sub_49CC
+LOAD:000049CC
+LOAD:000049CC             var_4           = -4
+LOAD:000049CC
+LOAD:000049CC 03 40 2D E9                 STMFD           SP!, {R0,R1,LR}
+LOAD:000049D0 0E 10 A0 E1                 MOV             R1, LR
+LOAD:000049D4 A1 10 A0 E1                 MOV             R1, R1,LSR#1
+LOAD:000049D8 81 10 A0 E1                 MOV             R1, R1,LSL#1
+LOAD:000049DC 01 00 A0 E1                 MOV             R0, R1
+LOAD:000049E0 00 10 91 E5                 LDR             R1, [R1]
+LOAD:000049E4 00 10 81 E0                 ADD             R1, R1, R0
+LOAD:000049E8 00 10 91 E5                 LDR             R1, [R1]
+LOAD:000049EC 08 10 8D E5                 STR             R1, [SP,#0xC+var_4]
+LOAD:000049F0 04 E0 8E E2                 ADD             LR, LR, #4
+LOAD:000049F4 03 80 BD E8                 LDMFD           SP!, {R0,R1,PC}
+LOAD:000049F4             ; End of function sub_49CC
+LOAD:000049F4
+LOAD:000049F8
+LOAD:000049F8             ; =============== S U B R O U T I N E =======================================
+LOAD:000049F8
+LOAD:000049F8
+LOAD:000049F8             sub_49F8
+LOAD:000049F8
+LOAD:000049F8             arg_4           =  4
+LOAD:000049F8
+LOAD:000049F8 04 E0 9D E5                 LDR             LR, [SP,#arg_4]
+LOAD:000049FC 04 00 8D E5                 STR             R0, [SP,#arg_4]
+LOAD:00004A00 01 80 BD E8                 LDMFD           SP!, {R0,PC}
+LOAD:00004A00             ; End of function sub_49F8
+LOAD:00004A00
+LOAD:00004A04
+LOAD:00004A04             ; =============== S U B R O U T I N E =======================================
+LOAD:00004A04
+LOAD:00004A04
+LOAD:00004A04             sub_4A04
+LOAD:00004A04
+LOAD:00004A04             arg_C           =  0xC
+LOAD:00004A04             arg_10          =  0x10
+LOAD:00004A04             arg_14          =  0x14
+LOAD:00004A04
+LOAD:00004A04 0E 10 A0 E1                 MOV             R1, LR
+LOAD:00004A08 A1 10 A0 E1                 MOV             R1, R1,LSR#1
+LOAD:00004A0C 81 10 A0 E1                 MOV             R1, R1,LSL#1
+LOAD:00004A10 01 00 A0 E1                 MOV             R0, R1
+LOAD:00004A14 00 10 91 E5                 LDR             R1, [R1]
+LOAD:00004A18 00 10 81 E0                 ADD             R1, R1, R0
+LOAD:00004A1C 00 00 91 E5                 LDR             R0, [R1]
+LOAD:00004A20 04 10 91 E5                 LDR             R1, [R1,#4]
+LOAD:00004A24 10 00 8D E5                 STR             R0, [SP,#arg_10]
+LOAD:00004A28 14 10 8D E5                 STR             R1, [SP,#arg_14]
+LOAD:00004A2C 04 E0 8E E2                 ADD             LR, LR, #4
+LOAD:00004A30 0C E0 8D E5                 STR             LR, [SP,#arg_C]
+LOAD:00004A34 03 40 BD E8                 LDMFD           SP!, {R0,R1,LR}
+LOAD:00004A38 04 F0 9D E4                 LDR             PC, [SP-0xC+arg_C],#4
+LOAD:00004A38             ; End of function sub_4A04
+LOAD:00004A38
+LOAD:00004A3C
+LOAD:00004A3C             ; =============== S U B R O U T I N E =======================================
+LOAD:00004A3C
+LOAD:00004A3C
+LOAD:00004A3C             sub_4A3C                                ; CODE XREF: sub_4AE4:loc_4AE8j
+LOAD:00004A3C
+LOAD:00004A3C             var_8           = -8
+LOAD:00004A3C             var_4           = -4
+LOAD:00004A3C             arg_8           =  8
+LOAD:00004A3C
+LOAD:00004A3C 04 70 2D E5                 STR             R7, [SP,#-4]!
+LOAD:00004A40 00 70 0F E1                 MRS             R7, CPSR
+LOAD:00004A44 04 20 2D E5                 STR             R2, [SP,#-4]!
+LOAD:00004A48 01 10 CE E3                 BIC             R1, LR, #1
+LOAD:00004A4C 80 01 B1 E7                 LDR             R0, [R1,R0,LSL#3]!
+LOAD:00004A50 04 10 91 E5                 LDR             R1, [R1,#4]
+LOAD:00004A54 00 00 51 E3                 CMP             R1, #0
+LOAD:00004A58 0E 00 00 0A                 BEQ             loc_4A98
+LOAD:00004A5C 01 00 11 E3                 TST             R1, #1
+LOAD:00004A60 7F 20 A0 13                 MOVNE           R2, #0x7F ; ''
+LOAD:00004A64 21 22 02 10                 ANDNE           R2, R2, R1,LSR#4
+LOAD:00004A68 02 00 40 10                 SUBNE           R0, R0, R2
+LOAD:00004A6C 02 00 11 E3                 TST             R1, #2
+LOAD:00004A70 7F 20 A0 13                 MOVNE           R2, #0x7F ; ''
+LOAD:00004A74 A1 25 02 10                 ANDNE           R2, R2, R1,LSR#11
+LOAD:00004A78 02 00 80 10                 ADDNE           R0, R0, R2
+LOAD:00004A7C 04 00 11 E3                 TST             R1, #4
+LOAD:00004A80 FF 20 A0 13                 MOVNE           R2, #0xFF
+LOAD:00004A84 21 29 02 10                 ANDNE           R2, R2, R1,LSR#18
+LOAD:00004A88 02 00 20 10                 EORNE           R0, R0, R2
+LOAD:00004A8C 01 2E A0 E1                 MOV             R2, R1,LSL#28
+LOAD:00004A90 C2 0F 20 E0                 EOR             R0, R0, R2,ASR#31
+LOAD:00004A94 21 0D 80 E0                 ADD             R0, R0, R1,LSR#26
+LOAD:00004A98
+LOAD:00004A98             loc_4A98                                ; CODE XREF: sub_4A3C+1Cj
+LOAD:00004A98 0E 00 80 E0                 ADD             R0, R0, LR
+LOAD:00004A9C 04 20 9D E4                 LDR             R2, [SP],#4
+LOAD:00004AA0 07 F0 29 E1                 MSR             CPSR_cf, R7
+LOAD:00004AA4 04 70 9D E4                 LDR             R7, [SP],#4
+LOAD:00004AA8 08 E0 9D E5                 LDR             LR, [SP,#8]
+LOAD:00004AAC 08 00 8D E5                 STR             R0, [SP,#8]
+LOAD:00004AB0 03 80 BD E8                 LDMFD           SP!, {R0,R1,PC}
+LOAD:00004AB0             ; End of function sub_4A3C
+
+----------------------------------------------------------------------------------------------
+在拿一個調整表做例子：
+LOAD:00009884 01 48                       LDR             R0, =5
+LOAD:00009888 FB F7 60 E8                 BLX             dyna_pc
+LOAD:0000988C 05 00 00 00 dword_988C      DCD 5            
+LOAD:00009890 1C 00 00 00                 DCD 0x1C
+LOAD:00009894 40 00 00 00                 DCD 0x40
+LOAD:00009898 E4 00 00 00                 DCD 0xE4
+LOAD:0000989C 3C 01 00 00                 DCD 0x13C
+LOAD:000098A0 88 01 00 00                 DCD 0x188
+LOAD:000098A4 08 02 00 00                 DCD 0x208
+同上，規律是dyna_pc + 4 (即下一條指令地址[是r0的值] + offset[0 - 5], 因爲表大小為9890 - 98A4 共5個)，
+因此證明一共5個跳轉經過這裏，經證明確實如此：
+Down j LOAD:000098C4 BL              loc_9888
+Down j LOAD:00009966 BL              loc_9888
+Down j LOAD:000099BE BL              loc_9888
+Down j LOAD:00009A0C BL              loc_9888
+Down j LOAD:00009A8A BL              loc_9888
+///////////////////////////////////////////////////////////////////////////////////////////////
+它可以實現把一個函數打散，或者隱藏多個函數之間的關係
+特徵：
+---------------------------------------------------------------------------
+PUSH            {R0,R1,LR}
+LDR             R0, =3
+BL              dispatcher
+DCD 3      
+---------------------------------------------------------------------------   
+表0 - n 代表偏移
+--------------------------------------------------------------------------- 
+类似僞代码：
+PUSH            {R0,R1,LR} // 壓入參數
+LDR             R0, =5 // 跳轉表索引
+BL              dispatcher // 查表計算偏移，跳轉到偏移処
+func dispatcher(n) { 
+	// 動態跳轉指令實現，也不算b族指令變種，應該是在編寫完核心代碼后處理的，
+	// 但不是編譯時或者編譯後，感覺它即不是利用llvm編譯也不是利用重建elf做的，
+	// 理由是llvm或者elf重建會把所有代碼都混淆，而它不是混淆了所有
+	// 編寫完核心邏輯后，它需要配置一個函數跳轉表。
+	switch(n) {
+		case n:
+			// 步長計算
+			// r1 = lr 地位清零, r0 = n
+			// pc = [r0 + (r0 << 2)]
+			func dynapc();// dyna pc; // 动态计算pc，其實就是完成查表得到偏移，后用lr + off，如：
+				// BIC             R1, LR, #1 // r1 = lr 地位清零
+				// LDR             R1, [R1,R0,LSL#2] // r1 = [r1 + (r0 << 2)]
+				// ADD             R1, R1, LR
+				// LDR             LR, [SP,#8]
+				// STR             R1, [SP,#8]
+				// LDMFD           SP!, {R0,R1,PC}
+				// 此过程不修改lr的实际值
+				offset = [((lr << 1) >> 1) + (n << 2)]; 
+				code_addr = lr + offset;
+				blx code_addr;
+				
+			b // 打乱跳转，通過把pc變成隱式，通過pop pc實現	
+			// 插入花指令bl ，這些花指令時編寫代碼時以宏的方式插入的
+			// PUSH            {R0,R1,R4-R6,LR}
+			// ADRL            R4, 0x7C518
+			// MOVS            R0, R4
+			// MOV             R4, LR
+			// B              loc_7C506
+			// NOP // 已被patch , 原本是push {xxx}
+			// NOP // 已被patch
+			// NOP // 已被patch, 原本是pop {xxx}
+			// ADDS            R0, R0, #4
+			// ADDS            R0, #0xA
+			// ADDS            R0, R0, #7 // 對R4 + 4 + 7 + 0xa 得到7C51C，即下一條指令処
+			// B               loc_7C51C // 被patch， 原始pop {xxxx, xxx, pc},pc 被賦值為7C51C
+			// MOV             LR, R4 // LOAD:0007C51C
+			// STR             R0, [SP,#0x10]
+			// B               實際函數地址，原為pop{xxxxx,xxxx, pc},被patch，這麽做只是為了混淆ida
+			// 执行一些简单代码
+			// 插入花指令bl，每種變種特徵不一樣
+			// 执行一些简单代码
+
+			bl func
+			push {r0,r1, lr} // 参数和返回地址
+			r0 = N, 修改跳轉表值
+			bl dispatcher(N);
+			break;
+		case ...
+	}
+}
+
+---------------------------------------------------------------------------------------------------------------
+sub_494C的特征，代码段中仅存在一处
+LOAD:0000B264 ; ---------------------------------------------------------------------------
+LOAD:0000B264                 PUSH.W          {R4-R8,LR}
+LOAD:0000B268                 ADD             R7, SP, #0xC
+LOAD:0000B26A                 PUSH            {R0,R1,LR}
+LOAD:0000B26C                 LDR             R0, =0x20
+LOAD:0000B26E                 BL              loc_B140   // 又跳回了LOAD:0000B140                 BLX             sub_494C
+LOAD:0000B26E ; ---------------------------------------------------------------------------
+可以看到并想象程序中有多种类似的跳转，
+特征：
+PUSH            {R0,R1,LR}  
+LDR             R0, =number
+NOP
+patch代码摘自网络，被放置在put_unconditional_branch.py文件中，
+在B26A处执行patch脚本，运行结果如下：B26A处指令变成了B loc_B4B0
+LOAD:0000B264             ; ---------------------------------------------------------------------------
+LOAD:0000B264 2D E9 F0 41                 PUSH.W          {R4-R8,LR}
+LOAD:0000B268 03 AF                       ADD             R7, SP, #0xC
+LOAD:0000B26A 21 E1                       B               loc_B4B0
+LOAD:0000B26C 01 48                       LDR             R0, =0x20
+LOAD:0000B26E FF F7 67 FF                 BL              loc_B140
+LOAD:0000B26E             ; ---------------------------------------------------------------------------
+
+LOAD:0000B4B0             ; ---------------------------------------------------------------------------
+LOAD:0000B4B0
+LOAD:0000B4B0             loc_B4B0
+LOAD:0000B4B0 82 B0                       SUB             SP, SP, #8
+LOAD:0000B4B2 82 B0                       SUB             SP, SP, #8 // 这段代码包含一个blx跳转，该跳转
+LOAD:0000B4B4 03 B5                       PUSH            {R0,R1,LR} //	仅仅是完成了跳到下一个指令的位置
+LOAD:0000B4B6 F9 F7 56 EA                 BLX             sub_4964   //	并且计算出指定寄存器的值
+LOAD:0000B4BA EA 00                       LSLS            R2, R5, #3 //	这段类似代码都可以被patch掉
+LOAD:0000B4BC 00 00                       MOVS            R0, R0 //
+LOAD:0000B4BE 02 BC                       POP             {R1} //
+LOAD:0000B4C0 00 28                       CMP             R0, #0 //
+LOAD:0000B4C2 79 44                       ADD             R1, PC //
+LOAD:0000B4C4 09 68                       LDR             R1, [R1] 
+LOAD:0000B4C6 03 B5                       PUSH            {R0,R1,LR}
+LOAD:0000B4C8 01 48                       LDR             R0, =0x27
+LOAD:0000B4CA FF F7 39 FE                 BL              loc_B140
+LOAD:0000B4CA             ; ---------------------------------------------------------------------------
+
+
+
+sub_4964处指令只是完成了 PC = R1 = B5A4, LR = B4BE(它下一条指令处)， R0, R1略
+LOAD:00004964             ; =============== S U B R O U T I N E =======================================
+LOAD:00004964
+LOAD:00004964
+LOAD:00004964             sub_4964                               
+LOAD:00004964                                                     
+LOAD:00004964
+LOAD:00004964             arg_C           =  0xC
+LOAD:00004964             arg_10          =  0x10
+LOAD:00004964
+LOAD:00004964 01 00 CE E3                 BIC             R0, LR, #1  // LR最低位清零，最终R0仍为B4BA
+LOAD:00004968 00 10 90 E5                 LDR             R1, [R0] // R1 = [B4BA] = 0XEA
+LOAD:0000496C 01 10 90 E7                 LDR             R1, [R0,R1] // R1 = B4BA + 0XEA = B5A4
+LOAD:00004970 04 E0 8E E2                 ADD             LR, LR, #4 // B4BA + 4 = B4BE
+LOAD:00004974 0C E0 8D E5                 STR             LR, [SP,#0xC]
+LOAD:00004978 10 10 8D E5                 STR             R1, [SP,#0x10]
+LOAD:0000497C 03 C0 BD E8                 LDMFD           SP!, {R0,R1,LR,PC} // PC = B4BE(它下一条指令处)
+LOAD:0000497C             ; End of function sub_4964
+LOAD:0000497C
+LOAD:00004980             ; ---------------------------------------------------------------------------
+
+特征如下：
+SUB SP, SP, #8
+PUSH {R0,R1,LR}
+....
+POP xxx
+摘自网络的patch代码见patches.py文件，在B4B2处进行patch后代码变化如下：
+LOAD:0000B4B0             ; ---------------------------------------------------------------------------
+LOAD:0000B4B0
+LOAD:0000B4B0             loc_B4B0
+LOAD:0000B4B0 82 B0                       SUB             SP, SP, #8
+LOAD:0000B4B2 00 BF                       NOP
+LOAD:0000B4B4 01 49                       LDR             R1, =0xB5A4 // = 0x7F73A  
+LOAD:0000B4B6 09 68                       LDR             R1, [R1]
+LOAD:0000B4B8 02 E0                       B               loc_B4C0
+LOAD:0000B4B8             ; ---------------------------------------------------------------------------
+LOAD:0000B4BA EA 00       word_B4BA       DCW 0xEA
+LOAD:0000B4BC A4 B5 00 00 dword_B4BC      DCD 0xB5A4
+LOAD:0000B4C0             ; ---------------------------------------------------------------------------
+LOAD:0000B4C0
+LOAD:0000B4C0             loc_B4C0                                ; CODE XREF: LOAD:0000B4B8j
+LOAD:0000B4C0 00 28                       CMP             R0, #0
+LOAD:0000B4C2 79 44                       ADD             R1, PC //  __stack_chk_guard
+LOAD:0000B4C4 09 68                       LDR             R1, [R1]
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+另一块类似代码，特征：
+
+LOAD:0007203C 03 B5                       PUSH            {R0,R1,LR}
+LOAD:0007203E 00 BF                       NOP
+LOAD:00072040 92 F7 AA EC                 BLX             sub_4998
+LOAD:00072044 0C 00                       MOVS            R4, R1
+-------------------------------------------------------------------------------------------------------------------
+
+LOAD:00004998
+LOAD:00004998
+LOAD:00004998             sub_4998                              
+LOAD:00004998                                                     
+LOAD:00004998
+LOAD:00004998             arg_8           =  8
+LOAD:00004998
+LOAD:00004998 01 00 CE E3                 BIC             R0, LR, #1 // 对LR = 0x72044最低位清零，仍为72044
+LOAD:0000499C 00 10 90 E5                 LDR             R1, [R0] // 取R1 = [0x72044] = 0xc
+LOAD:000049A0 0E 10 81 E0                 ADD             R1, R1, LR // 对LR = 0x72044 + 0xc = 0x72050 
+LOAD:000049A4 08 E0 9D E5                 LDR             LR, [SP,#8]
+LOAD:000049A8 08 10 8D E5                 STR             R1, [SP,#8]
+LOAD:000049AC 03 80 BD E8                 LDMFD           SP!, {R0,R1,PC} // PC = 0x72050 
+LOAD:000049AC             ; End of function sub_4998
+
+----------------------------------------------------------------------------------------------------------------
+摘自网络命名位put_unconditional_branch1.py文件patch 0x7203C。
+
+LOAD:0007203C                 B               loc_72050
+LOAD:0007203E                 NOP
+LOAD:00072040                 BLX             sub_4998
+LOAD:00072044                 MOVS            R4, R1
+LOAD:00072046                 MOVS            R0, R0
+
+---------------------------------------------------------------------------------------------------------------
+什麽表？
+LOAD:00072F00 16 7E 01 00 dword_72F00     DCD 0x17E16             ; CODE XREF: LOAD:00072DC8j
+LOAD:00072F04 BA 31 01 00 dword_72F04     DCD 0x131BA             ; CODE XREF: LOAD:00072DD6j
+LOAD:00072F08 E8 D9 01 00 dword_72F08     DCD 0x1D9E8             ; CODE XREF: LOAD:00072E1Cj
+LOAD:00072F0C 9C 31 01 00 dword_72F0C     DCD 0x1319C             ; CODE XREF: LOAD:00072E30j
+LOAD:00072F10 D1 31 01 00 dword_72F10     DCD 0x131D1             ; CODE XREF: LOAD:00072D70j
+LOAD:00072F14 3E DA 01 00                 DCD 0x1DA3E
+LOAD:00072F18 4C 32 01 00                 DCD 0x1324C
+LOAD:00072F1C 9B 31 01 00 dword_72F1C     DCD 0x1319B             ; CODE XREF: LOAD:00072E68j
+LOAD:00072F20 4A D9 01 00 dword_72F20     DCD 0x1D94A             ; CODE XREF: LOAD:00072E84j
+LOAD:00072F24 C0 31 01 00 dword_72F24     DCD 0x131C0             ; CODE XREF: LOAD:00072E96j
+LOAD:00072F28 AA 31 01 00 dword_72F28     DCD 0x131AA             ; CODE XREF: LOAD:00072EBAj
+LOAD:00072F2C 0E D9 01 00 dword_72F2C     DCD 0x1D90E             ; CODE XREF: LOAD:00072ED6j
+LOAD:00072F30 C0 7E 01 00 dword_72F30     DCD 0x17EC0             ; CODE XREF: LOAD:00072D2Cj
+--------------------------------------------------------------------------------------------------------------
+另一種計算pc的特徵：
+LOAD:00009A50 FA F7 A2 EF                 BLX             sub_4998
+LOAD:00009A50             ; ---------------------------------------------------------------------------
+LOAD:00009A54 7A FF FF FF                 DCD 0xFFFFFF7A
+LOAD:00009A58             ; ---------------------------------------------------------------------------
+
+sub_4998
+LOAD:00004998             arg_8           =  8
+LOAD:00004998
+LOAD:00004998 01 00 CE E3                 BIC             R0, LR, #1 // lr = 9A54
+LOAD:0000499C 00 10 90 E5                 LDR             R1, [R0] // 0xFFFFFF7A
+LOAD:000049A0 0E 10 81 E0                 ADD             R1, R1, LR  // 0x9ace = 9A54 + 0x7a
+LOAD:000049A4 08 E0 9D E5                 LDR             LR, [SP,#8]
+LOAD:000049A8 08 10 8D E5                 STR             R1, [SP,#8]
+LOAD:000049AC 03 80 BD E8                 LDMFD           SP!, {R0,R1,PC} // 0x9ace
+以上指令等價於下面僞代碼：
+bl (lr + [lr])
+---------------------------------------------------------------------------------------------------------------
+另一種計算pc的特徵:
+LOAD:00009BBC 00 F0 0C B8                 B.W             loc_9BD8
+LOAD:00009BC0             ; ---------------------------------------------------------------------------
+
+
+LOAD:00009BD8             loc_9BD8    
+LOAD:00009BD8                              
+LOAD:00009BD8 71 46                       MOV             R1, LR // lr = 9BC0 
+LOAD:00009BDA 02 A5                       ADR             R5, 0x9BE4
+LOAD:00009BDC 55 F8 21 10                 LDR.W           R1, [R5,R1,LSL#2] ; 30ae4 = 0xFE6B
+LOAD:00009BE0 29 44                       ADD             R1, R5  ; 19A4F
+LOAD:00009BE2 08 47                       BX              R1 // 動態跳轉
+LOAD:00009BE2             ; ---------------------------------------------------------------------------
+LOAD:00009BE4 DD FF FF FF                 DCD 0xFFFFFFDD
+LOAD:00009BE8             ; ---------------------------------------------------------------------------
+
+---------------------------------------------------------------------------------------------------------------
+另一種計算pc的特徵（同時動態計算寄存器值，參數動態生成）：
+LOAD:00004D12 82 B0                       SUB             SP, SP, #8
+LOAD:00004D14 03 B5                       PUSH            {R0,R1,LR}
+LOAD:00004D16 FF F7 26 EE                 BLX             sub_4964 
+LOAD:00004D16             ; ---------------------------------------------------------------------------
+LOAD:00004D1A EE 31 00 00                 DCD 0x31EE
+LOAD:00004D1E             ; ---------------------------------------------------------------------------
+LOAD:00004D1E 01 BC                       POP             {R0} // pop xxx，動態生成參數
+
+sub_4964 
+LOAD:00004964 01 00 CE E3                 BIC             R0, LR, #1 // 4D1A
+LOAD:00004968 00 10 90 E5                 LDR             R1, [R0] // 0x31EE
+LOAD:0000496C 01 10 90 E7                 LDR             R1, [R0,R1] // r1 = [4D1A + 0x31EE] = [7f08] = 0x85ECC
+LOAD:00004970 04 E0 8E E2                 ADD             LR, LR, #4 // lr = 4D1E
+LOAD:00004974 0C E0 8D E5                 STR             LR, [SP,#0xC] // lr + 4 ,下一條指令処
+LOAD:00004978 10 10 8D E5                 STR             R1, [SP,#0x10] // 待彈出寄存器值0x85ECC
+LOAD:0000497C 03 C0 BD E8                 LDMFD           SP!, {R0,R1,LR,PC} // pc = pc + 8
+等同於僞代碼：
+arg_addr = [lr + [lr]]
+r{0-3} = arg_addr
+---------------------------------------------------------------------------------------------------------------
+case 8:
+LOAD:0000B26A 21 E1                       B               sub_B4B0->
+	LOAD:0000B4C6 51 E0                       B               loc_B56C ->
+	LOAD:0000B4C6 51 E0                       B               loc_B56C ->
+	create_global_objects , jint、jboolean， jstring
+
+
+sub_B1EC ->
+LOAD:0000B1F2 B1 E1                       B               loc_B558
+LOAD:0000B55E DD E7                       B               loc_B51C
+LOAD:0000B51E 68 F0 81 FC                 BL              sub_73E24
+
+
+LOAD:00072DBC             loc_72DBC
+sub_73E24 -> sub_73E56
+
+sub_7AF78
+
+
+LOAD:0000B592 CF E7                       B               loc_B534 -> 
+LOAD:0000B534 67 F0 CA FB                 BL              sub_72CCC
+
+----------------------------------------------------------------------------------------------------------
+程序邏輯：
+libsgmainso_6.4.36.so B3F2D000 B3FB6000 R . X D . byte 00 public CODE 32 00 00
+sp = BE903640  B1200284  debug038:B1200284
+第一個動態pc：
+libsgmainso_6.4.36.so:B3F38140 BLX             dyna_pc
+動態arg：
+libsgmainso_6.4.36.so:B3F384B6 BLX             dyna_arg
+libsgmainso_6.4.36.so:AFE80210 BL              loc_AFEF14F4(重命名為goto_create_global_objs)
+sub_7C4F4();   // 創建全局 jboolean， jinteger、jstring
+
+调试时跳过这里，否则可能崩溃
+LOAD:0000B584 71 F0 14 F8                 BL              goto_getenv
+---------------------------------------------------------------------------------------------------------
+#sub_72CCC()
+
+sub77dbc(), 代码複合patch代码第二種特征，但是这里应该不被patch，被patch的地方
+82 B0       SUB             SP, SP, #8
+03 B5       PUSH            {R0,R1,LR}
+91 F7 CC ED BLX             dyna_arg
+32 01       LSLS            R2, R6, #4
+00 00       MOVS            R0, R0
+01 BC       POP             {R0}
+应该满足两个SUB             SP, SP, #8指令，因此運行patch代碼，patch整個代碼段
+會出錯，它會把{R0,R1,LR}指令patch成b xxxx導致運行失敗。
+sp = BE903620  AFE80111  libsgmainso_6.4.36.so:AFE80111
+BL              sub_B3FA0E24(sub_73e24()，被重命名為goto_decrypt_entry)
+arg:B3FB2FA9, BE9035C3,0x35 // 參數1為加密數據緩存區，參數2是解密數據緩存區
+sub_B3FA0E56(sub_73e56, 被重命名為decrypt_entry),比較重要的函數涉及創建容器結構體和解密
+BL unk_B3FA7F78(goto_create_vdata)
+BL sub_B3FA7FB6(create_vdata)
+arg:vdata1,"DcO/lcK+h?m3c*q@",0x10
+//vdata1->make_vdata 填充數據
+libsgmainso_6.4.36.so:B3FA0E94 98 47 BLX     R3(7AA5D‬)
+拷貝"DcO/lcK+h?m3c*vaq@"到vdata1的data1中
+
+第二次調用make_vdata，arg:vdata2,B3FB2FA9,52 // 參數2是數據緩存區
+這次是把下面這52個字節拷貝到vdata2的data2中
+0xF9,0xA7,0x21,0x3D,0x8C,0x3E,0xFE,0x77,0x18,0x40,0xDB,0x2A,
+0xAD,0x4A,0xC5,0xF9,0xA1,0x56,0x75,0x54,0x23,0xBE,0xC7,0xA6, 
+0x7A,0x35,0xEC,0x8E,0xB2,5,0x74,0x11,0x93,0x58,0x7F,0x6E,0x3A,
+0xE3,0x4F,0x9D,0x54,3,0x7E,0x6B,0xFA,0x1B,0x5B,0xE3,0xF8,0xC1,2,0xF9 
+dcryptdata:BE903578
+memset(BE903578, 0, 20)
+arg:BE903578,BE903594,20,20
+// 進入解密函數，dcryptdata結構對應内存
+[stack]:BE903578 DCD 0
+[stack]:BE90357C DCD 3 ; caseno
+[stack]:BE903580 DCD 0
+[stack]:BE903584 DCD 0
+[stack]:BE903588 DCD 0xACC1C890 ; vdata1
+[stack]:BE90358C DCD 0xACC1C8C8 ; vdata2
+libsgmainso_6.4.36.so:B3FA0ED8 BL       sub_B3F8E15C(重命名為goto_dcrypto)
+goto_dcrypto(dcryptdata, )
+進入sub_611b4(被重命名為decrypto)進行解密，解密出：
+"com/taobao/wireless/security/adapter/common/HttpUtil"
+libsgmainso_6.4.36.so AFE75000 AFEFE000 R . X D . byte 00 public CODE 32 00 00
+調用findclass查找該class，調用NewGlobalRef創建該類的ref 001003D2，0001319C
+arg: httputilref, 
+bl sub_72d60()
+// 參數1加密數據，參數2為解密緩衝區，參數3為長度
+BL              goto_decrypt_entry(encdata, decdata, len);
+BL              goto_create_vdata
+memset (BE9035A0, 0, 0x1d)
+拷貝加密數據到vdata2
+memset dcryptdata 結構BE903558
+BL              goto_dcrypto, 解密出字符串"sendSyncHttpGetRequestBridge"
+調用env->getStaticMethodID,75F247D8,0001DA3E,0001324C
+sub_72e54()
+解密出數據"sendSyncHttpPostRequestBridge"
+在解密出"downloadFileBridge"
+至此sub_72CCC()結束
+---------------------------------------------------------------------------------------------------------
+sub_73634()
+sub_7366A‬()
+BL    goto_decrypt_entry(,, 54)
+解密出"com/taobao/wireless/security/adapter/umid/UmidAdapter"
+調用env->findclass找到UmidAdapterClass ,調用env->NewGlobalRef UmidAdapterRef
+調用env->DeleteLocalRef, 刪除UmidAdapterClass，wtf？
+BL    goto_decrypt_entry(, , 16)
+解密出"umidInitAdapter"
+調用env->getStaticMethodID(UmidAdapterRef, "umidInitAdapter")
+sub_73634()結束
+---------------------------------------------------------------------------------------------------------
+BL              goto_decrypt_entry(, , 49)
+解密出"com/taobao/wireless/security/adapter/JNICLibrary"
+調用env->findclass查找JNICLibrary
+libsgmainso_6.4.36.so:AFE804F2 BLX             R2
