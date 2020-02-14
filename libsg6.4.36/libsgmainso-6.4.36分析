@@ -638,7 +638,7 @@ goto_dcrypto(dcryptdata, )
 進入sub_611b4(被重命名為decrypto)進行解密，解密出：
 "com/taobao/wireless/security/adapter/common/HttpUtil"
 libsgmainso_6.4.36.so AFE75000 AFEFE000 R . X D . byte 00 public CODE 32 00 00
-調用findclass查找該class，調用NewGlobalRef創建該類的ref 001003D2，0001319C
+調用findclass查找該class，調用NewGlobalRef創建該類的ref
 arg: httputilref, 
 bl sub_72d60()
 // 參數1加密數據，參數2為解密緩衝區，參數3為長度
@@ -648,7 +648,7 @@ memset (BE9035A0, 0, 0x1d)
 拷貝加密數據到vdata2
 memset dcryptdata 結構BE903558
 BL              goto_dcrypto, 解密出字符串"sendSyncHttpGetRequestBridge"
-調用env->getStaticMethodID,75F247D8,0001DA3E,0001324C
+調用env->getStaticMethodID
 sub_72e54()
 解密出數據"sendSyncHttpPostRequestBridge"
 在解密出"downloadFileBridge"
@@ -668,4 +668,63 @@ sub_73634()結束
 BL              goto_decrypt_entry(, , 49)
 解密出"com/taobao/wireless/security/adapter/JNICLibrary"
 調用env->findclass查找JNICLibrary
-libsgmainso_6.4.36.so:AFE804F2 BLX             R2
+libsgmainso_6.4.36.so B3F2E000 B3FB7000 R . X D . byte 00 public CODE 32 00 00
+調用env->findclass查找JNICLibrary 
+bl 9EE4‬
+
+sub_9F1C(JNICLibraryClass)
+debug014:ACC11D60 DCD 0xACC49A80 = malloc(12); // 這是個什麽結構體,暫且命名為tmp_vdata
+debug014:ACC11D60 DCD 0xB3F37A99
+debug014:ACC11D64 DCD 0xB3F37DF5
+debug014:ACC11D68 DCD 0xB3F37E49
+sub_7B86C(32,0) // 重命名為create_tmp1vdata(int len, int w); // len表示結構體大小，w未知
+struct tmp1_nest_struct {
+	void* tmp1_nf1;
+	void* tmp1_nf2;
+	int len;
+};
+
+struct tmp1_vdata {
+	struct data* data;
+	int lastoff;
+	int chunk_size;
+	void* tmp1_f1;
+	void* tmp1_f2;
+	void* tmp1_f3;
+	struct tmp1_nest_struct tmp1_nest;
+};
+ACC3A3A8 = malloc(36);
+創建tmp1_vdata結構體，對應内存結構：
+debug014:ACC3A3A8 DCD 0xACC49A80
+debug014:ACC3A3AC DCD 0
+debug014:ACC3A3B0 DCD 0x20
+debug014:ACC3A3B4 DCD 0xB3FA98F9
+debug014:ACC3A3B8 DCD 0xB3FA99B5
+debug014:ACC3A3BC DCD 0xB3FA99F5
+debug014:ACC3A3C0 DCD 0xB3FA9A81
+debug014:ACC3A3C4 DCD 0xB3FA9AF1
+debug014:ACC3A3C8 DCD 0
+創建data結構體(chunk)
+ACC49A80 = malloc(128);
+存儲這個結構到libsgmainso_6.4.36.so:B3FBAA7C dword_B3FBAA7C DCD 0xACC3A3A8 処
+
+創建第二個tmp1_vdata結構體ACC3A3D0
+debug014:ACC3A3D0 DCD 0xACC49B00                          ; tmp1_vdata2
+debug014:ACC3A3D4 DCD 0
+debug014:ACC3A3D8 DCD 0x20
+debug014:ACC3A3DC DCD 0xB3FA98F9
+debug014:ACC3A3E0 DCD 0xB3FA99B5
+debug014:ACC3A3E4 DCD 0xB3FA99F5
+debug014:ACC3A3E8 DCD 0xB3FA9A81
+debug014:ACC3A3EC DCD 0xB3FA9AF1
+debug014:ACC3A3F0 DCD 0
+創建第二個data結構體ACC49B00
+
+
+arg:tmp_vdata,tmp1_data2,B3F37A99(buf?)
+sub_sub_73DD4()啥也沒乾
+
+00018D62
+解密得到"com/taobao/wireless/security/adapter/common/SPUtility2"
+調用env->findclass找到SPUtility2Class
+調用env->NewGlobalRef創建SPUtility2Ref
