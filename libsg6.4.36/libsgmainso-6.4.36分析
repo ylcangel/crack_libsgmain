@@ -322,8 +322,7 @@ Down j LOAD:00009966 BL              loc_9888
 Down j LOAD:000099BE BL              loc_9888
 Down j LOAD:00009A0C BL              loc_9888
 Down j LOAD:00009A8A BL              loc_9888
-///////////////////////////////////////////////////////////////////////////////////////////////
----------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 sub_494C的特征，代码段中仅存在一处
 LOAD:0000B264 ; ---------------------------------------------------------------------------
 LOAD:0000B264                 PUSH.W          {R4-R8,LR}
@@ -445,21 +444,6 @@ LOAD:00072044                 MOVS            R4, R1
 LOAD:00072046                 MOVS            R0, R0
 
 ---------------------------------------------------------------------------------------------------------------
-什麽表？
-LOAD:00072F00 16 7E 01 00 dword_72F00     DCD 0x17E16             ; CODE XREF: LOAD:00072DC8j
-LOAD:00072F04 BA 31 01 00 dword_72F04     DCD 0x131BA             ; CODE XREF: LOAD:00072DD6j
-LOAD:00072F08 E8 D9 01 00 dword_72F08     DCD 0x1D9E8             ; CODE XREF: LOAD:00072E1Cj
-LOAD:00072F0C 9C 31 01 00 dword_72F0C     DCD 0x1319C             ; CODE XREF: LOAD:00072E30j
-LOAD:00072F10 D1 31 01 00 dword_72F10     DCD 0x131D1             ; CODE XREF: LOAD:00072D70j
-LOAD:00072F14 3E DA 01 00                 DCD 0x1DA3E
-LOAD:00072F18 4C 32 01 00                 DCD 0x1324C
-LOAD:00072F1C 9B 31 01 00 dword_72F1C     DCD 0x1319B             ; CODE XREF: LOAD:00072E68j
-LOAD:00072F20 4A D9 01 00 dword_72F20     DCD 0x1D94A             ; CODE XREF: LOAD:00072E84j
-LOAD:00072F24 C0 31 01 00 dword_72F24     DCD 0x131C0             ; CODE XREF: LOAD:00072E96j
-LOAD:00072F28 AA 31 01 00 dword_72F28     DCD 0x131AA             ; CODE XREF: LOAD:00072EBAj
-LOAD:00072F2C 0E D9 01 00 dword_72F2C     DCD 0x1D90E             ; CODE XREF: LOAD:00072ED6j
-LOAD:00072F30 C0 7E 01 00 dword_72F30     DCD 0x17EC0             ; CODE XREF: LOAD:00072D2Cj
---------------------------------------------------------------------------------------------------------------
 另一種計算pc的特徵：
 LOAD:00009A50 FA F7 A2 EF                 BLX             sub_4998
 LOAD:00009A50             ; ---------------------------------------------------------------------------
@@ -515,7 +499,7 @@ LOAD:0000497C 03 C0 BD E8                 LDMFD           SP!, {R0,R1,LR,PC} // 
 等同於僞代碼：
 arg_addr = [lr + [lr]]
 r{0-3} = arg_addr
-------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------
 程序邏輯：
 libsgmainso_6.4.36.so B3F2D000 B3FB6000 R . X D . byte 00 public CODE 32 00 00
 sp = BE903640  B1200284  debug038:B1200284
@@ -528,8 +512,10 @@ sub_7C4F4();   // 創建全局 jboolean， jinteger、jstring
 
 调试时跳过这里，否则可能崩溃
 LOAD:0000B584 71 F0 14 F8                 BL              goto_getenv
----------------------------------------------------------------------------------------------------------
-#sub_72CCC()
+---------------------------------------------------------------------------------------------------------------
+#sub_72CCC()，被重命名為goto_do_httpuitl
+主要完成對com/taobao/wireless/security/adapter/common/HttpUtil的各種方法的查找
+獲取對應的MethodId並保存
 
 sub77dbc(), 代码複合patch代码第二種特征，但是这里应该不被patch，被patch的地方
 82 B0       SUB             SP, SP, #8
@@ -581,36 +567,40 @@ BL              goto_create_vdata
 memset (BE9035A0, 0, 0x1d)
 拷貝加密數據到vdata2
 memset dcryptdata 結構BE903558
-BL              goto_dcrypto, 解密出字符串"sendSyncHttpGetRequestBridge"
-調用env->getStaticMethodID
+BL              goto_dcrypto, 解密出字符串"sendSyncHttpGetRequestBridge" 
+調用env->getStaticMethodID,75F247D8
 sub_72e54()
 解密出數據"sendSyncHttpPostRequestBridge"
-在解密出"downloadFileBridge"
+調用env->getStaticMethodID, 75F24828
+在解密出"downloadFileBridge" 
+調用env->getStaticMethodID, 75F24788
+調用env->DeleteLocalRef刪除httputilref
 至此sub_72CCC()結束
----------------------------------------------------------------------------------------------------------
-sub_73634()
+---------------------------------------------------------------------------------------------------------------
+sub_73634()被重命名為goto_do_umidAdapter
+主要完成對com/taobao/wireless/security/adapter/umid/UmidAdapter的方法的查找
+並保存其MethodId
 sub_7366A‬()
 BL    goto_decrypt_entry(,, 54)
 解密出"com/taobao/wireless/security/adapter/umid/UmidAdapter"
-調用env->findclass找到UmidAdapterClass ,調用env->NewGlobalRef UmidAdapterRef
-調用env->DeleteLocalRef, 刪除UmidAdapterClass，wtf？
-BL    goto_decrypt_entry(, , 16)
+調用env->findclass找到UmidAdapterClass 00100025,調用env->NewGlobalRef UmidAdapterRef
+調用env->DeleteLocalRef, 刪除UmidAdapterClass
+BL    goto_decrypt_entry(AFEFB113, BE9035B8, 16)
 解密出"umidInitAdapter"
-調用env->getStaticMethodID(UmidAdapterRef, "umidInitAdapter")
+調用env->getStaticMethodID(UmidAdapterRef, "umidInitAdapter") 75F248C8
 sub_73634()結束
----------------------------------------------------------------------------------------------------------
-BL              goto_decrypt_entry(, , 49)
+---------------------------------------------------------------------------------------------------------------
+BL              goto_decrypt_entry(AFEF8EA6, BE9035E8, 49)
 解密出"com/taobao/wireless/security/adapter/JNICLibrary"
-調用env->findclass查找JNICLibrary
 libsgmainso_6.4.36.so B3F2E000 B3FB7000 R . X D . byte 00 public CODE 32 00 00
-調用env->findclass查找JNICLibrary 
+調用env->findclass查找JNICLibrary 00200025
 bl 9EE4‬
-
-sub_9F1C(JNICLibraryClass)
-debug014:ACC11D60 DCD 0xACC49A80 = malloc(12); // 這是個什麽結構體,暫且命名為tmp_vdata
-debug014:ACC11D60 DCD 0xB3F37A99
-debug014:ACC11D64 DCD 0xB3F37DF5
-debug014:ACC11D68 DCD 0xB3F37E49
+sub_9ee4() 被重命名為goto_create_tmp1vdata_，主要是調用sub_9F1C完成創建兩個大的結構體
+sub_9F1C()
+ACC11F60 = malloc(12); // 這是個什麽結構體,暫且命名為tmp_vdata
+debug014:ACC11F60 DCD 0xB3F36A99
+debug014:ACC11F64 DCD 0xB3F36DF5
+debug014:ACC11F68 DCD 0xB3F36E49
 sub_7B86C(32,0) // 重命名為create_tmp1vdata(int len, int w); // len表示結構體大小，w未知
 struct tmp1_nest_struct {
 	void* tmp1_nf1;
@@ -619,46 +609,493 @@ struct tmp1_nest_struct {
 };
 
 struct tmp1_vdata {
-	struct data* data;
-	int lastoff;
+	struct data* datalist;
+	int chunk_count;
 	int chunk_size;
 	void* tmp1_f1;
 	void* tmp1_f2;
 	void* tmp1_f3;
 	struct tmp1_nest_struct tmp1_nest;
 };
-ACC3A3A8 = malloc(36);
+ACC3A3D0 = malloc(36);
 創建tmp1_vdata結構體，對應内存結構：
-debug014:ACC3A3A8 DCD 0xACC49A80
-debug014:ACC3A3AC DCD 0
-debug014:ACC3A3B0 DCD 0x20
-debug014:ACC3A3B4 DCD 0xB3FA98F9
-debug014:ACC3A3B8 DCD 0xB3FA99B5
-debug014:ACC3A3BC DCD 0xB3FA99F5
-debug014:ACC3A3C0 DCD 0xB3FA9A81
-debug014:ACC3A3C4 DCD 0xB3FA9AF1
-debug014:ACC3A3C8 DCD 0
-創建data結構體(chunk)
-ACC49A80 = malloc(128);
-存儲這個結構到libsgmainso_6.4.36.so:B3FBAA7C dword_B3FBAA7C DCD 0xACC3A3A8 処
-
-創建第二個tmp1_vdata結構體ACC3A3D0
-debug014:ACC3A3D0 DCD 0xACC49B00                          ; tmp1_vdata2
+debug014:ACC3A3D0 DCD 0xACC49300                          ; tmp1_vdata1
 debug014:ACC3A3D4 DCD 0
 debug014:ACC3A3D8 DCD 0x20
-debug014:ACC3A3DC DCD 0xB3FA98F9
-debug014:ACC3A3E0 DCD 0xB3FA99B5
-debug014:ACC3A3E4 DCD 0xB3FA99F5
-debug014:ACC3A3E8 DCD 0xB3FA9A81
-debug014:ACC3A3EC DCD 0xB3FA9AF1
+debug014:ACC3A3DC DCD 0xB3FA88F9
+debug014:ACC3A3E0 DCD 0xB3FA89B5
+debug014:ACC3A3E4 DCD 0xB3FA89F5
+debug014:ACC3A3E8 DCD 0xB3FA8A81
+debug014:ACC3A3EC DCD 0xB3FA8AF1
 debug014:ACC3A3F0 DCD 0
-創建第二個data結構體ACC49B00
+創建data結構體(chunk)
+ACC49300 = malloc(128);
 
-
-arg:tmp_vdata,tmp1_data2,B3F37A99(buf?)
+創建第二個tmp1_vdata結構體ACC3A3A8
+debug014:ACC3A3A8 DCD 0xACC49280                          ; tmp1_vdata2
+debug014:ACC3A3AC DCD 0
+debug014:ACC3A3B0 DCD 0x20
+debug014:ACC3A3B4 DCD 0xB3FA88F9
+debug014:ACC3A3B8 DCD 0xB3FA89B5
+debug014:ACC3A3BC DCD 0xB3FA89F5
+debug014:ACC3A3C0 DCD 0xB3FA8A81
+debug014:ACC3A3C4 DCD 0xB3FA8AF1
+debug014:ACC3A3C8 DCD 0
+創建第二個data結構體ACC49280
+然後把它倆存儲在以下地方：
+libsgmainso_6.4.36.so:B3FB9A78 gtmp1_data2 DCD 0xACC3A3A8 
+libsgmainso_6.4.36.so:B3FB9A7C gtmp1_data1 DCD 0xACC3A3D0 
+---------------------------------------------------------------------------------------------------------------
+bl sub_71D68()‬,重命名為goto_do_SPUtility2
+主要是查找com/taobao/wireless/security/adapter/common/SPUtility2的一些methoidID
 sub_sub_73DD4()啥也沒乾
 
-00018D62
+sub_71E70只是用來構造參數
+sub_72080()
 解密得到"com/taobao/wireless/security/adapter/common/SPUtility2"
-調用env->findclass找到SPUtility2Class
-調用env->NewGlobalRef創建SPUtility2Ref
+調用env->findclass找到SPUtility2Class 00000029
+調用env->NewGlobalRef創建SPUtility2Ref 001003DA
+sub_72134()
+解密"readFromSPUnified"
+調用env-getStaticMethodID, 75F26B48
+解密"saveToFileUnifiedForNative"
+調用env-getStaticMethodID, 75F26C88
+sub_720C8‬()
+解密出 "removeFromSPUnifiedp"
+調用env-getStaticMethodID, 75F26BE8
+sub_71FD0‬()
+解密出"readSS"
+解密出"writeSS"，調用env-getStaticMethodID, 75F26D78
+sub_71EB0()
+調用env-getStaticMethodID("readSS"), 75F26B98
+解密出"read"， "write"
+調用env-getStaticMethodID("read"),75F26AF8
+調用env-getStaticMethodID("write"),75F26D28
+---------------------------------------------------------------------------------------------------------------
+sub_e7dc()
+sub_E890‬()
+解密出"(I)Ljava/lang/String;"
+解密出"com/taobao/wireless/security/adapter/datacollection/DeviceInfoCapturer"
+調用findclass，0010002D，調用NewGlobalRef創建該類的ref 001003DE
+調用DeleteLocalRef, 刪除本地DeviceInfoCapturer類的ref
+解密出"doCommandForString"
+調用env-getStaticMethodID("doCommandForString"),75F27048
+存儲在以下位置：
+libsgmainso_6.4.36.so:B3FB9A94 global_DeviceInfoCapturer_methodId DCD 0x75F27048
+libsgmainso_6.4.36.so:B3FB7C00 global_DeviceInfoCapturer_ref DCD 0xB6F33E04
+
+sub_9B3C‬(), 不知道在幹嘛，一堆跳和賦值，感覺向被llvm混淆過，
+
+
+sub_9854() 它會記錄時間
+struct 8bitstruct {
+	int count;
+	struct tmp1_vdata* vdata;
+};
+
+8bitstruct = B4F01130 = malloc(8); 暫時不知道代表啥
+debug070:B4F01130 DCD 1                                   ; 8字節數據，裏面存儲著tmp1_vdata3
+debug070:B4F01134 DCD 0xACC3A3F8                          ; tmp1_vdata3
+
+再次調用create_tmp1vdata
+debug014:ACC3A3F8 DCB 0                                   ; tmp1_vdata3
+debug014:ACC49380 DCB    0                                ; tmp1_data3
+
+sub_7B93A(tmp1_vdata2, 0， B4F01130); //tmp1_vdata的函數f2，填充數據
+執行完畢tmp1_vdata2變爲：
+debug014:ACC3A3A8 DCD 0xACC49280                          ; tmp1_vdata2
+debug014:ACC3A3AC DCD 1
+debug014:ACC3A3B0 DCD 0x20
+debug014:ACC3A3B4 DCD 0xB3FA88F9
+debug014:ACC3A3B8 DCD 0xB3FA89B5
+debug014:ACC3A3BC DCD 0xB3FA89F5
+debug014:ACC3A3C0 DCD 0xB3FA8A81
+debug014:ACC3A3C4 DCD 0xB3FA8AF1
+debug014:ACC3A3C8 DCD 0
+
+debug014:ACC49280 DCD 0xB4F01130                          ; tm1_data2; 指向了B4F01130
+sub_9970‬()
+ACC125B0 = malloc(24);
+struct 24bitstruct {
+	int a; // 1
+	int b; // 9
+	long time;
+	int c;
+	struct *tmp1_vdata vdata; // tmp1_vdata4
+	int d;
+};
+調用time,srand48,lrand48
+
+debug014:ACC125B0 DCD 1                                   ; 24字節的結構,第三個四字節為時間
+debug014:ACC125B4 DCD 9
+debug014:ACC125B8 DCD 0x26BD7CF6
+debug014:ACC125BC DCD 0
+debug014:ACC125C0 DCD 0xACC3A498 ;tmp1_vdata4
+debug014:ACC125C4 DCD 0
+
+在調用goto_create_tmp1vdata
+debug014:ACC3A498 DCB    0                                ; tmp1_vdata4
+debug014:ACC49400 DCB 0x52 ; R                            ; tmp1_data4
+
+ACC11F80 = malloc(16); // 16字節的結構
+debug014:ACC11F80 DCD 1                                   ; 16字節結構
+debug014:ACC11F84 DCD 9
+debug014:ACC11F88 DCD 1
+debug014:ACC11F8C DCD 0x954EAE43
+
+struct 16bitstruct {
+	int t;
+	int lrand;
+	int random;
+	int sec;
+};
+
+繼續調用tmp1_vdata的函數f2(tmp1_vdata4, 0, ACC11F80);tmp1_vdata4變爲：
+debug014:ACC3A498 DCD 0xACC49400                          ; tmp1_vdata4
+debug014:ACC3A49C DCD 1
+debug014:ACC3A4A0 DCD 0x20
+
+debug014:ACC49400 DCD 0xACC11F80                          ; tmp1_data4, 指向ACC11F80，16字節的結構
+sub_9854() 結束
+TODO 有可能拉下東西了
+---------------------------------------------------------------------------------------------------------------
+libsgmainso_6.4.36.so B3F2D000 B3FB6000 R . X D . byte 00 public CODE 32 00 00
+sub_69D68‬() 啥也沒乾
+---------------------------------------------------------------------------------------------------------------
+sub_197B4() 被重命名為goto_do_DataReportJniBridgerer
+主要是處理com/taobao/wireless/security/adapter/datareport/DataReportJniBridgerer這個類的方法，同上
+sub_1990C‬()
+解密出"com/taobao/wireless/security/adapter/datareport/DataReportJniBridgerer"
+調用findclass， 0000002D
+調用NewGlobalRef創建該類的ref 001003E2
+sub_19998‬()
+下面忘記下斷點了，丟失信息了
+解密出"sendReportBridge", 調用getStaticMethodID, 忘記記錄了
+解密出 "accsAvaiableBridge", 調用getStaticMethodID, 忘記記錄了
+解密出"()I" , 調用getStaticMethodID, 忘記記錄了
+解密出"registerAccsListnerBridge"
+解密出"()I" , 調用getStaticMethodID, 忘記記錄了
+sub_73D90()‬ 啥也沒乾
+又sub_9B3C‬()它裏面會調用sub_9854()，會創建很多結構並記錄時間,可能是執行時間校驗？還是
+時間記錄打點？
+
+丟掉了記錄8字節内存
+8bitstruct = ？？ = malloc(8); 暫時不知道代表啥
+debug014:ACC3A4C0 DCD 0xACC49480                          ; tmp1_vdata4
+
+24bitstruct = debug014:ACC125E0 = malloc(24)
+debug014:ACC125E0 DCD 1                                   ; 24bitstruct2
+debug014:ACC125E4 DCD 0xB
+debug014:ACC125E8 DCD 0x7FF75E63
+debug014:ACC125EC DCD 0
+debug014:ACC125F0 DCD 0xACC3A4C0 ; tmp1_vdata4
+debug014:ACC125F4 DCD 0
+
+ACC11FC0 = malloc(16);
+debug014:ACC11FC0 DCD 1                                   ; 16bit結構
+debug014:ACC11FC4 DCD 0xB
+debug014:ACC11FC8 DCD 0x34
+debug014:ACC11FCC DCD 0xCC033946
+
+調用完tmp1_vdata的函數f2
+debug014:ACC3A4C0 DCD 0xACC49480                          ; tmp1_vdata4
+debug014:ACC3A4C4 DCD 1
+debug014:ACC3A4C8 DCD 0x20
+
+debug014:ACC49480 DCD 0xACC11FC0                          ; tmp1_data4
+---------------------------------------------------------------------------------------------------------------
+sub_E240‬()
+sub_e280()
+又sub_9B3C‬(),被我重命名為complex_time_struct，它裏面會調用sub_9854()，會創建很多結構並記錄時間
+
+debug014:ACC126A0 DCD 1                                   ; 24bitstruct
+debug014:ACC126A4 DCD 7
+debug014:ACC126A8 DCD 0x21A74169
+debug014:ACC126AC DCD 0
+
+debug014:ACC3A4E8 DCD 0xACC49500                          ; tm1_vdata5
+debug014:ACC49500 DCD 0xACC11FF0                          ; tmp1_data5; //最終指向16bitstruct
+
+
+debug014:ACC11FF0 DCD 1                                   ; 16bitstruct
+debug014:ACC11FF4 DCD 7
+debug014:ACC11FF8 DCD 1
+debug014:ACC11FFC DCD 0x9254F0BC
+---------------------------------------------------------------------------------------------------------------
+sub_B8B0()‬
+繼續調用complex_time_struct
+到此我先更新一下上面的tmp1_vdata和tmp1_data
+=============================================================================
+debug014:ACC3A3D0 DCD 0xACC49300                          ; tmp1_vdata1
+debug014:ACC3A3D4 DCD 0 ; 代表無數據
+debug014:ACC3A3D8 DCD 0x20
+debug014:ACC3A3DC DCD 0xB3FA88F9
+debug014:ACC3A3E0 DCD 0xB3FA89B5
+debug014:ACC3A3E4 DCD 0xB3FA89F5
+debug014:ACC3A3E8 DCD 0xB3FA8A81
+debug014:ACC3A3EC DCD 0xB3FA8AF1
+debug014:ACC3A3F0 DCD 0
+
+debug014:ACC49300 DCB    0                                ; tmp1_data1
+=============================================================================
+debug014:ACC3A3A8 DCD 0xACC49280                          ; tmp1_vdata2
+debug014:ACC3A3AC DCD 1 ; 代表存在一個數據
+debug014:ACC3A3B0 DCD 0x20
+debug014:ACC3A3B4 DCD 0xB3FA88F9
+debug014:ACC3A3B8 DCD 0xB3FA89B5
+debug014:ACC3A3BC DCD 0xB3FA89F5
+debug014:ACC3A3C0 DCD 0xB3FA8A81
+debug014:ACC3A3C4 DCD 0xB3FA8AF1
+debug014:ACC3A3C8 DCD 0
+
+debug014:ACC49280 DCD 0xB4F01130                          ; tm1_data2
+=============================================================================
+debug014:ACC3A3F8 DCD 0xACC49380                          ; tmp1_vdata3
+debug014:ACC3A3FC DCD 3 ; 代表存在三個數據
+debug014:ACC3A400 DCD 0x20
+debug014:ACC3A404 DCD 0xB3FA88F9
+debug014:ACC3A408 DCD 0xB3FA89B5
+debug014:ACC3A40C DCD 0xB3FA89F5
+debug014:ACC3A410 DCD 0xB3FA8A81
+debug014:ACC3A414 DCD 0xB3FA8AF1
+debug014:ACC3A418 DCD 0
+
+debug014:ACC49380 DCD 0xACC125B0                          ; tmp1_data3
+debug014:ACC49384 DCD 0xACC125E0
+debug014:ACC49388 DCD 0xACC126A0
+=============================================================================
+debug014:ACC3A4C0 DCD 0xACC49480                          ; tmp1_vdata4
+debug014:ACC3A4C4 DCD 1 ; 代表存在一個數據
+debug014:ACC3A4C8 DCD 0x20
+debug014:ACC3A4CC DCD 0xB3FA88F9
+debug014:ACC3A4D0 DCD 0xB3FA89B5
+debug014:ACC3A4D4 DCD 0xB3FA89F5
+debug014:ACC3A4D8 DCD 0xB3FA8A81
+debug014:ACC3A4DC DCD 0xB3FA8AF1
+debug014:ACC3A4E0 DCD 0
+
+debug014:ACC49480 DCD 0xACC11FC0                          ; tmp1_data4
+=============================================================================
+debug014:ACC3A4E8 DCD 0xACC49500                          ; tm1_vdata5
+debug014:ACC3A4EC DCD 1 ; 代表存在一個數據
+debug014:ACC3A4F0 DCD 0x20
+debug014:ACC3A4F4 DCD 0xB3FA88F9
+debug014:ACC3A4F8 DCD 0xB3FA89B5
+debug014:ACC3A4FC DCD 0xB3FA89F5
+debug014:ACC3A500 DCD 0xB3FA8A81
+debug014:ACC3A504 DCD 0xB3FA8AF1
+debug014:ACC3A508 DCD 0
+
+debug014:ACC49500 DCD 0xACC11FF0                          ; tmp1_data5
+=============================================================================
+邏輯中對比
+從8bitstruct -> tmp1_vdata -> chunk_count 和 1 對比， 循環
+{
+取chunk_count個對應的tmp1_data(即24bitstruct代表時間的結構體的第二個字段)逐一對比
+}
+對比完成在創建上面提到的結構體
+24bitstruct = ACC12640
+
+debug014:ACC3A650 DCD 0xACC49580                          ; tmp1_vdata
+
+16bitstruct = ACC33030
+
+上面 ida 崩潰了，導致在分析變得有點混亂
+重新分析了一下結構：
+
+tmp1_vdata_list {
+ struct tmp1_vdata** vdatalist;
+}
+
+sub_9a14(tmp1_vdata* tmp1vdata, int t, int t1, int t2) {
+	if ( tmp1vdata->chunk_count >= 1) {
+		struct data** datalist = tmp1vdata->datalist;
+		for (int i = 0 ; i < tmp1vdata->chunk_count; i++) {
+			struct 24bitstruct* 24str = datalist[i];
+			if(24str->t == t) {
+				struct 8bitstruct* 8str = arg;
+				struct tmp1_vdata* vdata =  arg->vdata;
+				int chunk_count = vdata->chunk_count;
+				if (chunk_count >= 1) {
+					struct 24bitstruct* 24str = vdata->datalist;
+					for (int j = 0 ; j < chunk_count; j++) {
+						struct 24bitstruct* 24str_ = vdata->datalist[i];
+						if(24str_->lrand == t1) {
+							
+						}
+						
+						24bitstruct 24bitstr = malloc(24);
+						time_t seconds;
+						seconds = time(NULL);
+						srand((unsigned) time(&t));
+						int r = rand() >> 31;
+					
+						24bitstr->time = r;
+						24bitstr->a = ?
+						24bitstr->b = ?
+						24bitstr->sec = ?
+						
+						// 繼續調用sub_7B86C()‬
+						// 獲得tmp1_vdata* = ACC3A650
+						// 獲得tmp1_vdata->datalist = ACC4A400
+						24bitstr->vdata = ACC3A650;
+						tmp1vdata->f2(,) // 0xACC4A200, 邏輯同上
+						
+						
+						16bitstruct 16bitstr  = malloc(0x16); // ACC11DD0
+						繼續調用tmp1_vdata* = ACC3A650->f2(ACC3A650, ACC11DD0)
+						
+						tmp1_vdata*->datalist = 0xACC4A400[ACC11DD0];
+						// (EOR.W           R0, R0, R11// R11 = B3E34921 )
+						16bitstr->sec = 24bitstr->time ^ r11; // 沒搞明白， 沒有EOR.W
+					}
+				}
+				
+			}
+		}
+	}
+}
+
+又sub_9B3C‬()，不分析了，後面看心情在分析，ida崩潰了，讓我記錄的結構對不上了
+---------------------------------------------------------------------------------------------------------------
+sub_5F0F4‬()
+sub_5F11E‬()
+sub_9B3C‬() 略
+sub_7B93A‬() 相當於make_tmp1_vdata
+
+---------------------------------------------------------------------------------------------------------------
+sub_5F0F4(env, clazz)   // 無法命名同 sub_E7DC
+sub_9B3C‬() 略
+sub_9B3C‬() 略
+---------------------------------------------------------------------------------------------------------------
+sub_70640(env, clazz)  // 無法命名同 sub_E7DC
+
+sub_9B3C‬() 略
+sub_9B3C‬() 略
+---------------------------------------------------------------------------------------------------------------
+sub_11F3C(env)  
+sub_14FEE‬()
+sub_1511C()‬，中間很多調用findclass和調用都略
+解密出"android/content/Context"，調用findclass
+sub_151A4‬()
+解密出"getPackageManager","()Landroid/content/pm/PackageManager;"
+調用getStaticMethodID 70FC7458
+解密出"getContentResolver",  "()Landroid/content/ContentResolver;"
+調用getStaticMethodID 70FC7458
+解密出"getSystemService"，"(Ljava/lang/String;)Ljava/lang/Object;"
+調用getStaticMethodID 70FC7BA8
+解密出"WIFI_SERVICE"，"Ljava/lang/String;"
+調用GetStaticFieldID 70FC66E8
+調用NewGlobalRef創建該類的ref 001003E6
+調用DeleteLocalRef刪除該類本地ref
+解密出"android/content/pm/PackageManager", "getPackageInfo",，調用findclass
+"(Ljava/lang/String;I)Landroid/content/pm/PackageInfo;"
+調用getStaticMethodID 70FAFA30
+調用DeleteLocalRef刪除該類本地ref
+解密出"android/content/pm/PackageInfo"
+"applicationInfo", "Landroid/content/pm/ApplicationInfo;"
+調用GetFieldID 71052F08
+解密出 "firstInstallTime1"，"J"
+調用GetFieldID 71053100
+解密出"lastUpdateTime"，"J"
+調用GetFieldID 71053118
+調用DeleteLocalRef刪除該類本地ref
+解密出"android/content/pm/ApplicationInfo","flags","I"
+調用GetFieldID 71047168
+調用DeleteLocalRef刪除該類本地ref
+解密出"android/provider/Settings"， "getString"
+"(Landroid/content/ContentResolver;Ljava/lang/String;)Ljava/lang/String;"
+調用getStaticMethodID 7127C4E8
+調用NewGlobalRef創建該類的ref 001003EA
+調用DeleteLocalRef刪除該類本地ref
+"java/util/List","get", "(I)Ljava/lang/Object;",
+調用getStaticMethodID 70B43A50
+解密出"size","()I"
+調用getStaticMethodID 70B43DF8
+調用DeleteLocalRef刪除該類本地ref
+解密出"android/net/wifi/WifiConfiguration"，"SSID"，"Ljava/lang/String;"
+調用GetFieldID 75F27C38
+"networkId","I",調用GetFieldID 75F28078
+"providerFriendlyName","Ljava/lang/String;",調用GetFieldID, 返回空
+"BSSID"，"Ljava/lang/String;",調用GetFieldID, 75F27BF8
+"FQDN","Ljava/lang/String;",調用GetFieldID, 75F27C18
+"priority","I", 調用GetFieldID,75F282B8
+"hiddenSSID"，"Z"，調用GetFieldID, 75F27ED8
+調用NewGlobalRef創建該類的ref 001003EE
+調用DeleteLocalRef刪除該類本地ref
+"android/net/wifi/WifiManager"，"getConfiguredNetworks"，"()Ljava/util/List;"
+調用getStaticMethodID 711FD720
+"getDhcpInfo","()Landroid/net/DhcpInfo;"，
+調用getStaticMethodID 711FD840
+調用DeleteLocalRef刪除該類本地ref
+"android/net/DhcpInfo"， "gateway"，"I",
+調用GetFieldID 75F29168
+調用DeleteLocalRef刪除該類本地ref
+---------------------------------------------------------------------------------------------------------------
+sub_21C3C()
+sub_21c70()
+sub_9b3c() 後面抽時間詳細分析這個多次出現并且經過混淆過的函數
+sub_9b3c()
+sub_9b3c()
+---------------------------------------------------------------------------------------------------------------
+sub_2148C()
+sub_9b3c()
+sub_9b3c()
+sub_9b3c()
+---------------------------------------------------------------------------------------------------------------
+sub_210E0
+sub_73D90‬() // 沒幹啥
+9A98‬() // goto_create_tmp1_vdata
+sub_9b3c()
+sub_9b3c()
+sub_9b3c()
+---------------------------------------------------------------------------------------------------------------
+sub_41B58
+sub_9b3c()
+sub_9b3c()
+sub_9b3c()
+---------------------------------------------------------------------------------------------------------------
+sub_27920
+sub_9b3c()
+sub_9b3c()
+sub_9b3c()
+---------------------------------------------------------------------------------------------------------------
+sub_293E8()
+sub_2941C()->sub_29708()->sub_29918‬()
+解密出"com/taobao/dp/util/ZipUtils"，"unZip"，"([B)[B"
+findclass找到ZipUtilsClass 00100031
+NewGlobalRef 001003F2
+DeleteLocalRef
+getMethodID 75F29618
+解密出"com/taobao/dp/util/CallbackHelper"
+findclass找到CallbackHelper 00000031
+NewGlobalRef 001003F6
+DeleteLocalRef
+getMethodID 75F29618
+sub_2abf9()-->sub_2AC24‬()加綫程鎖
+DeleteLocalRef
+sub_29754()->sub_29BB4‬()
+解密出"getPackageManager"， "()Landroid/content/pm/PackageManager;"
+"android/content/Context","android/content/pm/PackageManager"
+"getPackageInfo","(Ljava/lang/String;I)Landroid/content/pm/PackageInfo;"
+"android/content/pm/PackageInfo","applicationInfo"
+"Landroid/content/pm/ApplicationInfo;","firstInstallTime","lastUpdateTime"
+"android/content/pm/ApplicationInfo","flags"
+FindClass("android/content/Context") 00100031
+NewGlobalRef 001003FA
+getMethodID("getPackageManager") 70FC7968
+FindClass("android/content/pm/PackageManager") 00000035
+NewGlobalRef 001003FE
+getMethodID("getPackageInfo") 70FAFA30
+FindClass("android/content/pm/PackageInfo") 00000039 ??
+NewGlobalRef 00100402
+GetFieldID("applicationInfo") 71052F08
+GetFieldID("firstInstallTime") 71053100
+GetFieldID("lastUpdateTime") 71053118
+FindClass("android/content/pm/ApplicationInfo") 0000003D
+NewGlobalRef 00100406
+GetFieldID("flags") 71047168
+---------------------------------------------------------------------------------------------------------------
+sub_208F4
+sub_20A0C‬()
+解密出"com/alibaba/wireless/security/framework/utils/UserTrackMethodJniBridge"

@@ -13,8 +13,8 @@ signed int sub_9F1C()
       return result;
     v1->f1 = 0;
     v1->wh = 0;
-    tmp1_data1_ = goto_create_tmp1vdata(0);     // 0x20,0
-    tmp1_data2 = goto_create_tmp1vdata(0);      // 0x20,0
+    gtmp1_data1_ = goto_create_tmp1vdata(0);     // 0x20,0 , 全局
+    gtmp1_data2 = goto_create_tmp1vdata(0);      // 0x20,0
     v1->wh = (char *)&dword_B3F37A99;
     v1->f1 = sub_B3F37DF4;
     v1->f2 = sub_B3F37E48;

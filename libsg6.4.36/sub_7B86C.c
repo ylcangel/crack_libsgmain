@@ -9,8 +9,8 @@ struct tmp1_nest_struct {
 };
 
 struct tmp1_vdata {
-	struct data* data;
-	int lastoff;
+	struct data* datalist;
+	int chunk_count;
 	int chunk_size;
 	void* tmp1_f1;
 	void* tmp1_f2;
@@ -19,7 +19,7 @@ struct tmp1_vdata {
 };
 
 tmp1_vdata* sub_7B86C(signed int a1, int a2)
-{ // 第一次傳入0x20, 0
+{ // create_tmp1_vdata, 第一次傳入0x20, 0
   signed int v2; // r5@1
   int v3; // r8@1
   tmp1_vdata *v4; // r0@2
@@ -46,7 +46,7 @@ tmp1_vdata* sub_7B86C(signed int a1, int a2)
   }
   memset(v6, 4 * v2);
   v5->data = v7;
-  v5->lastoff = 0;
+  v5->chunk_count = 0;
   v5->chunk_size = v2;
   v5->tmp1_f1 = sub_7B8F8;
   v8 = &v5->tmp1_nest;
