@@ -500,7 +500,7 @@ LOAD:0000497C 03 C0 BD E8                 LDMFD           SP!, {R0,R1,LR,PC} // 
 arg_addr = [lr + [lr]]
 r{0-3} = arg_addr
 ---------------------------------------------------------------------------------------------------------------
-程序邏輯：
+程序JNI_OnLoad邏輯：
 libsgmainso_6.4.36.so B3F2D000 B3FB6000 R . X D . byte 00 public CODE 32 00 00
 sp = BE903640  B1200284  debug038:B1200284
 第一個動態pc：
@@ -590,7 +590,7 @@ BL    goto_decrypt_entry(AFEFB113, BE9035B8, 16)
 調用env->getStaticMethodID(UmidAdapterRef, "umidInitAdapter") 75F248C8
 sub_73634()結束
 ---------------------------------------------------------------------------------------------------------------
-BL              goto_decrypt_entry(AFEF8EA6, BE9035E8, 49)
+sub_73E24()          goto_decrypt_entry(AFEF8EA6, BE9035E8, 49)
 解密出"com/taobao/wireless/security/adapter/JNICLibrary"
 libsgmainso_6.4.36.so B3F2E000 B3FB7000 R . X D . byte 00 public CODE 32 00 00
 調用env->findclass查找JNICLibrary 00200025
@@ -1098,4 +1098,25 @@ GetFieldID("flags") 71047168
 ---------------------------------------------------------------------------------------------------------------
 sub_208F4
 sub_20A0C‬()
-解密出"com/alibaba/wireless/security/framework/utils/UserTrackMethodJniBridge"
+libsgmainso_6.4.36.so B3E6B000 B3EF4000 R . X D . byte 00 public CODE 32 00 00
+解密出"com/alibaba/wireless/security/framework/utils/UserTrackMethodJniBridge" 00000041
+NewGlobalRef 0010040A， DeleteLocalRef
+"utAvaiable"，"()I;"，getStaticMethodID("utAvaiable") 75F28278
+"addUtRecord"，"(Ljava/lang/String;IILjava/lang/String;JLjava/lang/String;"
+"Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)I"
+sprintf(, "%s%s", "(Ljava/lang/String;IILjava/lang/String;JLjava/lang/String;", 
+"Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)I")
+得到"(Ljava/lang/String;IILjava/lang/String;JLjava/lang/String;Ljava/lang/String;Ljava/lang/String;"
+"Ljava/lang/String;Ljava/lang/String;)I"
+getStaticMethodID("addUtRecord") 75F28188
+"getStackTrace","(II)Ljava/lang/String;",getStaticMethodID("getStackTrace"), 75F281D8
+判斷獲取的methodId是否為空
+---------------------------------------------------------------------------------------------------------------
+sub_B7B0
+sub_b7f6() 被重命名為registerNatives
+解密出"doCommandNative"，"(I[Ljava/lang/Object;)Ljava/lang/Object;", fnPtr為sub_B69C()‬
+實際對應sub_B6F6()，重命名為doCommandNative，代碼摘自網絡
+sub_9D60為goto_docommand_native_inner
+調用env->RegisterNatives()注冊這個doCommandNative
+至此JNI_OnLoad結束
+---------------------------------------------------------------------------------------------------------------
