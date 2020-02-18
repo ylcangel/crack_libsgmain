@@ -2,6 +2,18 @@ libsgmainso-6.4.36分析
 
 //////////////////////////////////////////////////////////////
 
+難點：
+
+動態跳轉
+動態生成參數，參數變形
+函數隱藏（需要通過一個類似的裝跳過去）
+字符串加密
+部分關鍵代碼存在llvm混淆
+垃圾代碼，靜態分析對抗，擾亂ida分析
+多種加密算法
+
+
+
 LOAD:0000B110 JNI_OnLoad
 LOAD:0000B110
 LOAD:0000B110 var_4           = -4
@@ -590,7 +602,7 @@ BL    goto_decrypt_entry(AFEFB113, BE9035B8, 16)
 調用env->getStaticMethodID(UmidAdapterRef, "umidInitAdapter") 75F248C8
 sub_73634()結束
 ---------------------------------------------------------------------------------------------------------------
-sub_73E24()          goto_decrypt_entry(AFEF8EA6, BE9035E8, 49)
+sub_73E24()      goto_decrypt_entry(AFEF8EA6, BE9035E8, 49)
 解密出"com/taobao/wireless/security/adapter/JNICLibrary"
 libsgmainso_6.4.36.so B3F2E000 B3FB7000 R . X D . byte 00 public CODE 32 00 00
 調用env->findclass查找JNICLibrary 00200025
@@ -1098,8 +1110,7 @@ GetFieldID("flags") 71047168
 ---------------------------------------------------------------------------------------------------------------
 sub_208F4
 sub_20A0C‬()
-libsgmainso_6.4.36.so B3E6B000 B3EF4000 R . X D . byte 00 public CODE 32 00 00
-解密出"com/alibaba/wireless/security/framework/utils/UserTrackMethodJniBridge" 00000041
+解密出"com/alibaba/wireless/security/framework/utils/UserTrackMethodJniBridge"
 NewGlobalRef 0010040A， DeleteLocalRef
 "utAvaiable"，"()I;"，getStaticMethodID("utAvaiable") 75F28278
 "addUtRecord"，"(Ljava/lang/String;IILjava/lang/String;JLjava/lang/String;"
