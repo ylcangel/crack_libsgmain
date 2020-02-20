@@ -1131,3 +1131,250 @@ sub_9D60為goto_docommand_native_inner
 調用env->RegisterNatives()注冊這個doCommandNative
 至此JNI_OnLoad結束
 ---------------------------------------------------------------------------------------------------------------
+doCommandNative(12302, new Object[]{1, true}) 對應getSecToken
+struct command_arg {
+	int arg1;
+	int arg2;
+	int arg3;
+	JNIEnv* env;
+	void* args;
+};
+
+struct command_arg* = malloc(20); // ACB6A718
+
+int _R4 = 12302; // command
+int _R0 = 0x68DB8BAD; // 68DB8BAD
+int _R2 = 0x51EB851F; // 51EB851F
+
+int r0 = _R0 * _R4; // 000013AE
+int r3 = _R2 * _R4; // 00000F60
+// (signed int)r0 >> 0xc) = (signed int) (13AE >> 0xc) = 00000001
+// r0 >> 31 = 0
+r0 = ((signed int)r0 >> 0xc) + (r0 >> 31); // 0x1, 參數1
+int r1 = _R4 - r0 * 10000 ; // 000008FE(2302)
+r1 = _R4 * r1; // 2E0, SMMUL.W取高位
+// ((signed int)r3 >> 5) = 0000007B(123)
+// (r3 >> 31) = 0
+r2 = _R4 - (((signed int)r3 >> 5) + (r3 >> 31)) * 100; // 2, 參數3
+r3 = (signed) r1 >> 5 = 00000017(23)
+r1 = r3 + (r1 >> 31) = 1; // 0x17， 參數2
+
+command_arg->arg1 = 1;
+command_arg->arg2 = 0x17;
+command_arg->arg3 = 2;
+
+
+sub_9D60->sub_9D82(1, 0x17, 2, 1, command_arg, 一個棧變量指針)
+
+
+libsgmainso_6.4.36.so:B3EF7A78 dword_B3EF7A78 DCD 0xACB4A3D0 
+// tmp1_vdata
+debug021:ACB4A3D0 DCD 0xACB31C80
+debug021:ACB4A3D4 DCD 1
+debug021:ACB4A3D8 DCD 0x20
+debug021:ACB4A3DC DCD 0xB3EE68F9
+debug021:ACB4A3E0 DCD 0xB3EE69B5
+debug021:ACB4A3E4 DCD 0xB3EE69F5
+debug021:ACB4A3E8 DCD 0xB3EE6A81
+debug021:ACB4A3EC DCD 0xB3EE6AF1
+debug021:ACB4A3F0 DCD 0
+// data
+debug021:ACB31C80 DCD 0xB4E01130
+//
+debug068:B4E01130 DCD 1
+debug068:B4E01134 DCD 0xACB4A3F8
+
+// tmp1_vdata1
+debug021:ACB4A3F8 DCD 0xACB31D00
+debug021:ACB4A3FC DCD 0xC
+debug021:ACB4A400 DCD 0x20
+debug021:ACB4A404 DCD 0xB3EE68F9
+debug021:ACB4A408 DCD 0xB3EE69B5
+debug021:ACB4A40C DCD 0xB3EE69F5
+debug021:ACB4A410 DCD 0xB3EE6A81
+debug021:ACB4A414 DCD 0xB3EE6AF1
+// 12個data
+debug021:ACB31D00 DCD 0xACB125F8
+debug021:ACB31D04 DCD 0xACB12610
+debug021:ACB31D08 DCD 0xACB125E0
+debug021:ACB31D0C DCD 0xACB124C0
+debug021:ACB31D10 DCD 0xACB12490
+debug021:ACB31D14 DCD 0xACB124F0
+debug021:ACB31D18 DCD 0xACB12A00
+debug021:ACB31D1C DCD 0xACB12778
+debug021:ACB31D20 DCD 0xACB12910
+debug021:ACB31D24 DCD 0xACB12AC0
+debug021:ACB31D28 DCD 0xACB12970
+debug021:ACB31D2C DCD 0xACB12BE0
+
+// 最後取到的符合要求的 對應參數2的結構
+debug021:ACB12BE0 DCD 1
+debug021:ACB12BE4 DCD 0x17
+debug021:ACB12BE8 DCD 0x7A005EB3
+debug021:ACB12BEC DCD 0
+debug021:ACB12BF0 DCD 0xACB4A7B8
+debug021:ACB12BF4 DCD 0
+debug021:ACB12BF8 DCD 0
+debug021:ACB12BFC DCD 0
+debug021:ACB12C00 DCD 0xACB12BC8
+
+//最後取到的符合要求的 對應參數3的結構
+debug021:ACB3B340 DCD 1
+debug021:ACB3B344 DCD 0x17
+debug021:ACB3B348 DCD 2
+debug021:ACB3B34C DCD 0xC9E91B96
+debug021:ACB3B350 DCD 1
+debug021:ACB3B354 DCD 0x17
+debug021:ACB3B358 DCD 1
+debug021:ACB3B35C DCD 0xC9E91A22
+debug021:ACB3B360 DCD 1
+debug021:ACB3B364 DCD 0x17
+debug021:ACB3B368 DCD 3
+debug021:ACB3B36C DCD 0xC9E91B66
+debug021:ACB3B370 DCD 1
+debug021:ACB3B374 DCD 0x17
+debug021:ACB3B378 DCD 4
+debug021:ACB3B37C DCD 0xC9E9182E
+
+libsgmainso_6.4.36.so:B3EF7A7C dword_B3EF7A7C DCD 0xACB4A3A8
+// tmp1_vdata?沒有用到
+debug021:ACB4A3A8 DCD 0xACB31C00
+debug021:ACB4A3AC DCD 0
+debug021:ACB4A3B0 DCD 0x20
+debug021:ACB4A3B4 DCD 0xB3EE68F9
+debug021:ACB4A3B8 DCD 0xB3EE69B5
+debug021:ACB4A3BC DCD 0xB3EE69F5
+debug021:ACB4A3C0 DCD 0xB3EE6A81
+debug021:ACB4A3C4 DCD 0xB3EE6AF1
+debug021:ACB4A3C8 DCD 0
+
+stack
+BE892140  00000000
+BE892144  BE892148  [stack]:BE892148
+BE892148  00000000
+BE89214C  B47A9038  dalvik_allocspace_allo
+BE892150  0000300E
+BE892154  00000000
+BE892158  BE892180  [stack]:BE892180
+BE89215C  B3E76771  libsgmainso_6.4.36.so:
+BE892160  ACB6A718  debug021:ACB6A718
+
+
+
+tmp1_vdata-> {datalistaddr, datalistcount, ...} datalist[0]->
+data[0]{count, addr} -> tmp1_vdata -> {}
+
+
+
+
+
+sub_9854(ACB4A3D0, 1, 0x17, 2, ...) 
+sub_9854->sub_9A14‬(a, b, c, ...) // a = arg1, b = arg2, c =arg3
+->sub_9d82()
+datalist = tmp1_vdata->datalist;
+data = datalist[0]; //datalist[i>>2]; i = 0;
+int ra = tmp1_vdata->chunk_count;
+if (a == ra) { // 1, data[0] == tmp1_vdata->chunk_count
+	tmp1_vdata1 = data[1];
+	count = tmp1_vdata1->chunk_count;
+	int i = 0;
+	while(i < count) { // c
+		datalist1 = tmp1_vdata1->datalist;
+		data1 = datalist1[i];
+		int rb = data1[1]; // 9 
+		if(b != rb) {
+			i++;
+		}
+		24bitstruct 24bitstr = data1[5];
+		tmp1_vdata2 = 24bitstr->vdata;
+		if(tmp1_vdata2->chunk_count != 1) {
+			datalist2 = tmp1_vdata2->datalist;
+			int j = 0;
+			while(j < datalist2->chunk_count) {
+				16bitstr = datalist2[j];
+				int rc = 16bitstr[3];
+				if(rc == c) {
+					// 這裏和棧上參數做了個對比，之前沒記錄
+					// R11, [R7,#0x1C]
+					// 另外對比了r10 沒記錄
+					// CMP.W           R10, #0
+					time = 24bitstr->time; // 0x7A005EB3
+					sec = 16bitstr->sec;
+					
+					int xor = time ^ sec; // B3E94525 // 程序下一步的跳轉地址
+					[r11] = xor; // [stack]:BE892148 DCD 0
+				}
+			}
+		}
+	}
+}
+LDR             R1, [R7,#0xC] //BE89216C，代表啥結構
+[stack]:BE89216C DCD 0
+[stack]:BE892170 DCD 0xB47A9038
+[stack]:BE892174 DCD 0x2DF
+[stack]:BE892178 DCD 0x75F91FF0
+[stack]:BE89217C DCD 0x12DDD080
+[stack]:BE892180 DCD 0x716162A0
+[stack]:BE892184 DCD 0x12E51660
+[stack]:BE892188 DCD 0xB4E07800
+[stack]:BE89218C DCD 0xA44E7263
+[stack]:BE892190 DCD 0x75F24BF8
+[stack]:BE892194 DCD 0xBE892438
+[stack]:BE892198 DCD 2
+[stack]:BE89219C DCD 0x12C357C0
+
+arg1 = command_arg->arg1;
+跳轉到上面異或出來的地址処 // xor = time ^ sec; // B3E94525地址処，對應文件0x29524処‬
+‬sub_2956C‬(command_arg, BE89216C); // 獲取傳遞參數arraylist 0xBE8921A0 -> 0x12E51660
+
+env = command_arg->env;
+jobjectarray = command_arg->args;
+7E744‬ ->sub_7E784()
+‬GetObjectArrayElement(env, jobjectarray);
+在通過GetObjectClass獲取對應jobject，在調用GetMethodID獲取對應取元素的方法
+在調用CallXXXMethod獲取數組中的value。
+7E7EC‬(env, jobjectarray)->sub_7E830‬
+functions->GetObjectArrayElement)()略，同上
+
+
+
+[stack]:BE89211C DCD 1
+[stack]:BE892120 DCD 1
+[stack]:BE892124 DCD 0xB47A9038
+[stack]:BE892128 DCD 0xB3EF7A78 // ; tmp1_data1
+[stack]:BE89212C DCD 0
+[stack]:BE892130 DCD 0xACB6A718 // ; command_arg
+
+
+[stack]:BE89216C DCD 0
+[stack]:BE892170 DCD 0xB47A9038
+[stack]:BE892174 DCD 0x2DF
+[stack]:BE892178 DCD 0x75F91FF0
+[stack]:BE89217C DCD 0x12DDD080
+[stack]:BE892180 DCD 0x716162A0
+[stack]:BE892184 DCD 0x12E51660
+[stack]:BE892188 DCD 0xB4E07800
+[stack]:BE89218C DCD 0xA44E7263
+[stack]:BE892190 DCD 0x75F24BF8
+[stack]:BE892194 DCD 0xBE892438
+[stack]:BE892198 DCD 2
+[stack]:BE89219C DCD 0x12C357C0
+29FD4‬->sub_2A01E(BE89211C, BE89216C)‬
+
+
+libsgmainso-6.4.36.so B3E6B000 0008D000
+------------------------------------------------------------------------------------------------------
+經過這一系列的逆向發現原來sub_9B3C‬()這個函數是用來做函數地址和跳轉command處理的
+最後把處理結果保存在一系列的嵌套的結構體中
+這些結構體涉及上面提到的tmp1_vdata，data， 16bitstruct，24bitstruct等
+核心思路是把地址和一個隨機時間異或加密，然後把地址對應的command存儲在三層的結構體中
+，這樣每次保持的地址和時間值都不一樣，，後面我會酌情花時間細緻的逆向。
+知道這些我們其實很容易把command和 跳轉地址記錄下來，不用走doCommandNative。
+
+commandNative函數查找時，command 分爲三個主要參數 ：
+command / 10000,
+command % 10000 / 100,
+command % 100
+用這三個參數查找一個嵌套的結構體，找到與這三個結構體三層都一致的結構體
+然後用之前記錄的時間和異或后的值再次異或就得到了跳轉地址。
+
