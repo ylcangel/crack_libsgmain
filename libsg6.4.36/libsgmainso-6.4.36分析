@@ -615,21 +615,22 @@ debug014:ACC11F60 DCD 0xB3F36A99
 debug014:ACC11F64 DCD 0xB3F36DF5
 debug014:ACC11F68 DCD 0xB3F36E49
 sub_7B86C(32,0) // 重命名為create_tmp1vdata(int len, int w); // len表示結構體大小，w未知
-struct tmp1_nest_struct {
+struct tmp1_nest {
 	void* tmp1_nf1;
 	void* tmp1_nf2;
 	int len;
 };
 
 struct tmp1_vdata {
-	struct data* datalist;
-	int chunk_count;
-	int chunk_size;
+	struct data** datalist; // 第一層$8bitstruct
+	int data_count;
+	int data_size;
 	void* tmp1_f1;
 	void* tmp1_f2;
 	void* tmp1_f3;
-	struct tmp1_nest_struct tmp1_nest;
+	struct tmp1_nest nest;
 };
+
 ACC3A3D0 = malloc(36);
 創建tmp1_vdata結構體，對應内存結構：
 debug014:ACC3A3D0 DCD 0xACC49300                          ; tmp1_vdata1
@@ -701,11 +702,10 @@ sub_9B3C‬(), 不知道在幹嘛，一堆跳和賦值，感覺向被llvm混淆�
 
 
 sub_9854() 它會記錄時間
-struct 8bitstruct {
-	int count;
-	struct tmp1_vdata* vdata;
+struct $8bitstruct {
+	int command_arg1; // command arg1
+	struct tmp1_vdata* vdata; // 指向第二層
 };
-
 8bitstruct = B4F01130 = malloc(8); 暫時不知道代表啥
 debug070:B4F01130 DCD 1                                   ; 8字節數據，裏面存儲著tmp1_vdata3
 debug070:B4F01134 DCD 0xACC3A3F8                          ; tmp1_vdata3
@@ -729,13 +729,13 @@ debug014:ACC3A3C8 DCD 0
 debug014:ACC49280 DCD 0xB4F01130                          ; tm1_data2; 指向了B4F01130
 sub_9970‬()
 ACC125B0 = malloc(24);
-struct 24bitstruct {
-	int a; // 1
-	int b; // 9
+struct $24bitstruct {
+	int command_arg1; // command arg1
+	int command_arg2; // command arg2
 	long time;
-	int c;
-	struct *tmp1_vdata vdata; // tmp1_vdata4
-	int d;
+	int c; // 未知
+	struct tmp1_vdata* vdata; // 指向第三層
+	int d; // 未知
 };
 調用time,srand48,lrand48
 
@@ -756,11 +756,11 @@ debug014:ACC11F84 DCD 9
 debug014:ACC11F88 DCD 1
 debug014:ACC11F8C DCD 0x954EAE43
 
-struct 16bitstruct {
-	int t;
-	int lrand;
-	int random;
-	int sec;
+struct $16bitstruct {
+	int command_arg1;
+	int command_arg2;
+	int command_arg3;
+	int xoraddr;
 };
 
 繼續調用tmp1_vdata的函數f2(tmp1_vdata4, 0, ACC11F80);tmp1_vdata4變爲：
@@ -1163,8 +1163,9 @@ r1 = r3 + (r1 >> 31) = 1; // 0x17， 參數2
 command_arg->arg1 = 1;
 command_arg->arg2 = 0x17;
 command_arg->arg3 = 2;
-
-
+// [stack]:BE892160 DCD 0xACB6A748 sp command_arg
+// [stack]:BE892164 DCD 0xBE89216C sp + 4, 棧指針
+// [stack]:BE89216C DCD 0
 sub_9D60->sub_9D82(1, 0x17, 2, w=1, command_arg, 一個棧變量指針)
 
 
@@ -1253,7 +1254,7 @@ debug021:ACB3B37C DCD 0xC9E9182E
 stack
 BE892140  00000000
 BE892144  BE892148  [stack]:BE892148
-BE892148  00000000
+BE892148  00000000 //r7 + 1c，後面用來存儲下一跳的地址
 BE89214C  B47A9038  dalvik_allocspace_allo
 BE892150  0000300E
 BE892154  00000000
@@ -1261,8 +1262,13 @@ BE892158  BE892180  [stack]:BE892180
 BE89215C  B3E76771  libsgmainso_6.4.36.so:
 BE892160  ACB6A718  debug021:ACB6A718
 
-tmp1_vdata-> {datalistaddr, datalistcount, ...} datalist[0]->
-data[0]{count, addr} -> tmp1_vdata -> {}
+我們設command變量從外到内依次為a、b、c
+tmp1_vdata-> {datalistaddr, data_count, ...} 
+datalist[0]->data[0]-> data{count, addr}->
+tmp1_vdata -> {datalistaddr, data_count, ...}->datalist[x]
+->24bitstruct{a, b, time(xorkey), ?, tmp1_vdata,?}->
+tmp1_vdata -> {datalistaddr, data_count, ...}->
+16bitstruct{a, b, c, xoraddr}
 
 
 sub_9854(ACB4A3D0, 1, 0x17, 2, ...) 
@@ -1274,59 +1280,75 @@ sub_9854->sub_9A14‬(a, b, c, ...) // a = arg1, b = arg2, c =arg3
 
 // 首先找到全局tmp1_vdata最外層指針，相對文件偏移dword_8CA7C和dword_8CA78
 // 前面做處理時保存的, w!=0時取dword_8CA78，否則取dword_8CA7C
-tmp1_vdata vdata = &dword_8CA7C; 
-if (w != 0) {
-	vdata = &dword_8CA78;
-}
-
-int data_count = vdata->chunk_count;
-if( data_count < 1) {
-	if(arg == NULL) {
+sub_9d82(int n1, int n2, int n3, int w,  struct command_arg* arg, int* next_addr) {
+	struct tmp1_vdata* vdata = &dword_8CA7C; 
+	if (w != 0) {
+		vdata = &dword_8CA78;
+	}
+	
+	// sub_9a14(tmp1_vdata, n1, n2, n3, w, 0)
+	// 最外層
+	datalist = vdata->datalist;
+	
+	int i = 0;
+	struct $8bitstruct* _8bitstruct = NULL;
+	while(i < n1) {
+		_8bitstruct = datalist[i]->d; // 取第一層8bitstruct指針
+		int ra = _8bitstruct->command_arg1; // 第一層命令
+		if (ra == n1) { // 第一層對比相等
+			break;
+		}
+		i++;
+	}
+	// w不爲0，可能返回0x270F、0x26B0、0x26B1
+	// 這裏暫不做分析
+	if (_8bitstruct == NULL && w == 0) { // 沒找到的情況
+		return 0x26b0;
+	}
+	//獲取第二層
+	struct tmp1_vdata* vdata1 = _8bitstruct->vdata;
+	int count = vdata1->data_count;
+	i = 0;
+	struct $24bitstruct _24bitstr = NULL;
+	while(i < count) {
+		_24bitstr = vdata1->datalist[i]->d;
+		int rb = _24bitstr->command_arg2;
+		if (rb = n2) { // 第二層對比
+			break;
+		}
+		i++;
+	}
+	// w不爲0，可能返回0x270F、0x26B0、0x26B1
+	// 這裏暫不做分析
+	if(_24bitstr == NULL && w == 0) { // 沒找到的情況
 		return 0x26b0;
 	}
 	
-	$8bitstruct 8bitstruct = malloc(8);
-	...
-}
-
-datalist = tmp1_vdata->datalist;
-data = datalist[0]; //datalist[i>>2]; i = 0;
-int ra = tmp1_vdata->chunk_count;
-if (a == ra) { // 1, data[0] == tmp1_vdata->chunk_count
-	tmp1_vdata1 = data[1];
-	count = tmp1_vdata1->chunk_count;
-	int i = 0;
-	while(i < count) { // c
-		datalist1 = tmp1_vdata1->datalist;
-		data1 = datalist1[i];
-		int rb = data1[1]; // 9 
-		if(b != rb) {
-			i++;
+	// 獲取第三層
+	struct tmp1_vdata* vdata2 = _24bitstr->vdata;
+	count = vdata2->data_count;
+	i = 0;
+	struct $16bitstruct _16bitstr = NULL;
+	while(i < count) {
+		_16bitstr = vdata2->datalist[i]->d;
+		int rc = _16bitstr->command_arg3;
+		if(rc == n3) {
+			int xor_addr = _16bitstr->xoraddr ^ _24bitstr->time;
+			*next_addr = xor_addr;
+			break;
 		}
-		24bitstruct 24bitstr = data1[5];
-		tmp1_vdata2 = 24bitstr->vdata;
-		if(tmp1_vdata2->chunk_count != 1) {
-			datalist2 = tmp1_vdata2->datalist;
-			int j = 0;
-			while(j < datalist2->chunk_count) {
-				16bitstr = datalist2[j];
-				int rc = 16bitstr[3];
-				if(rc == c) {
-					// 這裏和棧上參數做了個對比，之前沒記錄
-					// R11, [R7,#0x1C]
-					// 另外對比了r10 沒記錄
-					// CMP.W           R10, #0
-					time = 24bitstr->time; // 0x7A005EB3
-					sec = 16bitstr->sec;
-					
-					int xor = time ^ sec; // B3E94525 // 程序下一步的跳轉地址
-					[r11] = xor; // [stack]:BE892148 DCD 0
-				}
-			}
-		}
+		i++;
 	}
+	typedef *func(void* void*) nfunc;
+	nfunc nextf= (nfunc) next_addr;
+	return nextf(command_arg, next_addr);
 }
-LDR   R1, [R7,#0xC] //BE89216C，讀取返回的存儲的地址
+[stack]:BE892158 DCD 0xBE892180
+[stack]:BE89215C DCD 0xB3D72771
+[stack]:BE892160 DCD 0xACB6A748
+[stack]:BE892164 DCD 0xBE89216C // r7 + 0xc
+[stack]:BE892168 DCD 0x12DE5080
+[stack]:BE89216C DCD 0
 
 arg1 = command_arg->arg1;
 跳轉到上面異或出來的地址処 // xor = time ^ sec; // B3E94525地址処，對應文件0x29524処‬

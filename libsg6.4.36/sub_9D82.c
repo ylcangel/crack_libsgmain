@@ -1,57 +1,62 @@
-int sub_9d82(int n1, int n2, int n3, int w,  struct command_arg* arg, void* r) {
+int sub_9d82(int n1, int n2, int n3, int w,  struct command_arg* arg, int* next_addr) {
 	struct tmp1_vdata* vdata = &dword_8CA7C; 
 	if (w != 0) {
 		vdata = &dword_8CA78;
 	}
+	// sub_9a14(tmp1_vdata, n1, n2, n3, w, 0)
+	// 最外層
+	datalist = vdata->datalist;
 	
-	// sub_9a14(tmp1_vdata, n1, n2, n3, )
-	
-	
-	int data_count = vdata->chunk_count;
-	if( data_count < 1) {
-		if(arg == NULL) {
-			return 0x26b0;
+	int i = 0;
+	struct $8bitstruct* _8bitstruct = NULL;
+	while(i < n1) {
+		_8bitstruct = datalist[i]->d; // 取第一層8bitstruct指針
+		int ra = _8bitstruct->command_arg1; // 第一層命令
+		if (ra == n1) { // 第一層對比相等
+			break;
 		}
-		
-		$8bitstruct 8bitstruct = malloc(8);
-		...
+		i++;
+	}
+	// w不爲0，可能返回0x270F、0x26B0、0x26B1
+	// 這裏暫不做分析
+	if (_8bitstruct == NULL && w == 0) { // 沒找到的情況
+		return 0x26b0;
+	}
+	//獲取第二層
+	struct tmp1_vdata* vdata1 = _8bitstruct->vdata;
+	int count = vdata1->data_count;
+	i = 0;
+	struct $24bitstruct _24bitstr = NULL;
+	while(i < count) {
+		_24bitstr = vdata1->datalist[i]->d;
+		int rb = _24bitstr->command_arg2;
+		if (rb = n2) { // 第二層對比
+			break;
+		}
+		i++;
+	}
+	// w不爲0，可能返回0x270F、0x26B0、0x26B1
+	// 這裏暫不做分析
+	if(_24bitstr == NULL && w == 0) { // 沒找到的情況
+		return 0x26b0;
 	}
 	
-	datalist = tmp1_vdata->datalist;
-	data = datalist[0]; //datalist[i>>2]; i = 0;
-	int ra = tmp1_vdata->chunk_count;
-	if (a == ra) { // 1, data[0] == tmp1_vdata->chunk_count
-		tmp1_vdata1 = data[1];
-		count = tmp1_vdata1->chunk_count;
-		int i = 0;
-		while(i < count) { // c
-			datalist1 = tmp1_vdata1->datalist;
-			data1 = datalist1[i];
-			int rb = data1[1]; // 9 
-			if(b != rb) {
-				i++;
-			}
-			24bitstruct 24bitstr = data1[5];
-			tmp1_vdata2 = 24bitstr->vdata;
-			if(tmp1_vdata2->chunk_count != 1) {
-				datalist2 = tmp1_vdata2->datalist;
-				int j = 0;
-				while(j < datalist2->chunk_count) {
-					16bitstr = datalist2[j];
-					int rc = 16bitstr[3];
-					if(rc == c) {
-						// 這裏和棧上參數做了個對比，之前沒記錄
-						// R11, [R7,#0x1C]
-						// 另外對比了r10 沒記錄
-						// CMP.W           R10, #0
-						time = 24bitstr->time; // 0x7A005EB3
-						sec = 16bitstr->sec;
-						
-						int xor = time ^ sec; // B3E94525 // 程序下一步的跳轉地址
-						[r11] = xor; // [stack]:BE892148 DCD 0
-					}
-				}
-			}
+	// 獲取第三層
+	struct tmp1_vdata* vdata2 = _24bitstr->vdata;
+	count = vdata2->data_count;
+	i = 0;
+	struct $16bitstruct _16bitstr = NULL;
+	while(i < count) {
+		_16bitstr = vdata2->datalist[i]->d;
+		int rc = _16bitstr->command_arg3;
+		if(rc == n3) {
+			int xor_addr = _16bitstr->xoraddr ^ _24bitstr->time;
+			*next_addr = xor_addr;
+			break;
 		}
+		i++;
 	}
+	typedef *func(void* void*) nfunc;
+	nfunc nextf= (nfunc) next_addr;
+	return nextf(command_arg, next_addr);
 }
