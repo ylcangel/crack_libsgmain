@@ -2,7 +2,7 @@ struct data {
 	char* d;
 };
 
-struct vdata{
+struct vdata_64176 { // 對應版本6.4.176
 	struct data* data;
 	int data_len;
 	int data_mlen; // = len + 1
@@ -20,6 +20,29 @@ struct vdata{
 };
 
 
+struct vdata_6436_nest {
+	void* nf1;
+	void* nf2;
+	void* nf3;
+};
+
+struct vdata_6436 { // 對應版本6.4.36
+	struct data* data;
+	int data_len;
+	int data_mlen; // = len + 1
+	void* f1;
+	void* f2;
+	void* f3;
+	void* f4;
+	void* f5;
+	void* f6;
+	void* f7;
+	void* f8;
+	struct vdata_6436_nest* nest6436;
+};
+
+
+
 struct dcryptdata {
 	void* v;
 	int caseno;
@@ -33,6 +56,21 @@ struct tmp1_nest_struct {
 	void* tmp1_nf1;
 	void* tmp1_nf2;
 	int len;
+};
+
+struct vdata32_nest {
+	void* nf1;
+	void* nf2;
+	void* nf3;
+	void* nf4;
+};
+
+struct vdata32 {
+	struct data* data128;
+	int data_count;
+	int chunk_size;
+	void* f1; // goto_make_vdata32;
+	struct vdata32_nest* nest;
 };
 
 struct tmp1_vdata {
@@ -70,4 +108,12 @@ struct $16bitstruct {
 	int lrand;
 	int random;
 	int sec;
+};
+
+struct command_arg {
+	int arg1;
+	int arg2;
+	int arg3;
+	_JNIEnv* env;
+	void* args;
 };
