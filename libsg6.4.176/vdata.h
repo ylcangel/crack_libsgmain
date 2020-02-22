@@ -77,7 +77,7 @@ struct tmp1_vdata {
 	void* tmp1_f1;
 	void* tmp1_f2;
 	void* tmp1_f3;
-	struct tmp1_nest nest;
+	struct tmp1_nest* nest;
 };
 
 struct $8bitstruct {
