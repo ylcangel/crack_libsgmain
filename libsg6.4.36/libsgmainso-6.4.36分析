@@ -1,4 +1,4 @@
-libsgmainso-6.4.36分析
+libsgmainso-6.4.36邏輯分析
 
 //////////////////////////////////////////////////////////////
 
@@ -628,7 +628,7 @@ struct tmp1_vdata {
 	void* tmp1_f1;
 	void* tmp1_f2;
 	void* tmp1_f3;
-	struct tmp1_nest nest;
+	struct tmp1_nest* nest;
 };
 
 ACC3A3D0 = malloc(36);
@@ -1280,6 +1280,7 @@ sub_9854->sub_9A14‬(a, b, c, ...) // a = arg1, b = arg2, c =arg3
 
 // 首先找到全局tmp1_vdata最外層指針，相對文件偏移dword_8CA7C和dword_8CA78
 // 前面做處理時保存的, w!=0時取dword_8CA78，否則取dword_8CA7C
+// 這裏面有很多函數， 其中還包括正向建立tmp1_vdata過程，這裏略
 sub_9d82(int n1, int n2, int n3, int w,  struct command_arg* arg, int* next_addr) {
 	struct tmp1_vdata* vdata = &dword_8CA7C; 
 	if (w != 0) {
@@ -1343,6 +1344,7 @@ sub_9d82(int n1, int n2, int n3, int w,  struct command_arg* arg, int* next_addr
 	nfunc nextf= (nfunc) next_addr;
 	return nextf(command_arg, next_addr);
 }
+sub_9a14用
 [stack]:BE892158 DCD 0xBE892180
 [stack]:BE89215C DCD 0xB3D72771
 [stack]:BE892160 DCD 0xACB6A748
@@ -1424,8 +1426,7 @@ if (vvarg1[1] != 0)  // 取第二個jarray的值， 這裏值為true
 	  // 返回0
 	2D228->sub_2D1DA(1,9)->
 	// goto_make_vdata6436
-	sub_301BC(1,9) {
-	-> 301DE(index = 1, off = 9) 
+	sub_301BC(1,9) -> 301DE(index = 1, off = 9) 
 		// 大字符數組
 		// libsgmainso_6.4.36.so:B3EF02FD aA0d11c6a829475d8 DCB "a0d11c6a829475d8",0
 		// libsgmainso_6.4.36.so:B3EF030E aC558656c6b70ed21 DCB "c558656c6b70ed21",0
@@ -1466,16 +1467,19 @@ if (vvarg1[1] != 0)  // 取第二個jarray的值， 這裏值為true
 		否則，獲得數組為off_8AA20
 		// 這裏為1，即off_8A9F8
 		取字符串off_8A9F8[9] = "d8b057995e905838"
+		// ACB1C9E0
 		//7AF78 goto_create_vdata6436
 		7AF78->sub_7AFB6(0x11) //參數是字符串長度+1,該函數實際上就是create_vdata6436
 		// 實際上就是make_vdata6436
 		// debug023:ACB1C938 DCD 0xACB6A5F8
 		調用vdata6436->f1(vdata6436, "d8b057995e905838", 0x10);
 	
-	繼續調用goto_read_off_8AA50(1, 9) 得到r6 = 0
+	繼續調用goto_read_off_8AA50(1, 9) 得到0
 	// 7B148 goto_free_data
-	7B148->sub_7B17A(r6); // free_data; 執行free
-	30D24->sub_30D60(vdata6436); // ACB1C938
+	7B148->sub_7B17A(0); // free_data; 執行free
+	// goto_docommand_inner_contains_create_free_vdata32
+	// ACB1C938; goto_create_vdata32; do_command_inner; free_vdata32
+	30D24->sub_30D60(vdata6436,9,1,0,0,1); 
 	7C218->sub_7C258("d8b057995e905838", 0x10) // geto_create_vdata32
 	struct vdata32_nest {
 		void* nf1;
@@ -1491,26 +1495,22 @@ if (vvarg1[1] != 0)  // 取第二個jarray的值， 這裏值為true
 		void* f1; // goto_make_vdata32;
 		struct vdata32_nest* nest;
 	};
-	7C0D4->sub_7C10C("d8b057995e905838", 0x10); // A1515580; create_vdata32
+	// debug018:ACB6A5C8
+	7C0D4->sub_7C10C("d8b057995e905838", 0x10); // A1619860; create_vdata32
 	7C280->sub_7C2C8(vdata32, "d8b057995e905838", 0x10); // goto_make_vdata32
-	73D90->(7, "d8b057995e905838", 0x10, 0) // 讀取90804的值到寄存器r0，這是之前保存起來的
-	// ACB3B600
-	// libsgmainso_6.4.36.so:B3CDEDC6 LDR             R0, =(dword_B3CFB804 - 0xB3CDEDCC)
-	// libsgmainso_6.4.36.so:B3CDEDC8 ADD             R0, PC ; dword_B3CFB804
-	// libsgmainso_6.4.36.so:B3CDEDCA LDR             R0, [R0]
-	// libsgmainso_6.4.36.so:B3CDEDCC BX              LR
-	讀取90804的值到寄存器r0, 調試時為ACB3B600
-	[stack]:BE892078 DCD 0xBE89207C ; sp
+	73D90 // 讀取off_90804{讀取off_xxx}的值x，這是之前保存起來的
+	// debug018:ACB11E20 DCD 0xAFE7EA99
+	// debug018:ACB11E24 DCD 0xAFE7EDF5
+	// debug018:ACB11E28 DCD 0xAFE7EE49
+	// 讀取[x + 4] = 0xAFE7EDF5，好像是fnPtr，後面跳到這個地址執行
+	[stack]:BE892078 DCD 0xBE89207C // sp
 	[stack]:BE89207C DCD 0
-	[stack]:BE892080 DCD 0xA1515580 ; vdata32
-	[stack]:BE892084 DCD 1
-	[stack]:BE892088 DCD 7
-	[stack]:BE89208C DCD 0xB47A9038
-	[stack]:BE892090 DCD 1
-	[stack]:BE892094 DCD 9
-	[stack]:BE892098 DCD 0xBE8920AC
-	[stack]:BE89209C DCD 0xB3C98207
-	最終走到sub_9D82(1, 0x15, 2, 0) // command_native_inner
+	[stack]:BE892080 DCD 0xA1619860 // vdata32
+	{1, 0x15, 2, vdata32, 指向sp+4的指針}
+	sub_9E30重新設置參數
+	[stack]:BE892068 DCD 0xBE892080 sp
+	[stack]:BE89206C DCD 0xBE89207C sp + 4
+	最終走到sub_9D82(1, 0x15, 2, 0, vdata32p, &saved_addrp) // command_native_inner
 	// 不滿足查找條件，返回0x26b0
 	存儲0x26b0到[stack]:BE89207C処
 	[stack]:BE89207C DCD 0x26B0
@@ -1523,8 +1523,12 @@ if (vvarg1[1] != 0)  // 取第二個jarray的值， 這裏值為true
 	[stack]:BE892098 DCD 0xBE8920AC
 	[stack]:BE89209C DCD 0xB3C98207
 	sub_9D82返回0x26b0
-	7C34C->sub_7C3A4() // free_data(vdata32) ; 沒用到就給free了
+	7C34C->sub_7C3A4(vdata32) // free_data(vdata32); 沒用符合條件，vdata32就沒用到，把它free掉
 	得到剛剛獲取的0x26b0並存儲
+	free_vdata6436(vdata6436); // ACB1C9E0
+	// 代碼是不是跑錯了？
+	// 32cc8->sub_32DC4(0,1,5,2)->sub_32DF0
+	// kgsl?爲什麽取這裏
 	
 	繼續7AF78->sub_7AFB6(0x11) //參數是字符串長度+1,該函數實際上就是create_vdata6436 ，同上略
 

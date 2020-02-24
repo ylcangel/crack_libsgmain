@@ -1,9 +1,13 @@
 int sub_9d82(int n1, int n2, int n3, int w,  struct command_arg* arg, int* next_addr) {
+	// arg 有時候是vdata32類型
 	struct tmp1_vdata* vdata = &dword_8CA7C; 
 	if (w != 0) {
 		vdata = &dword_8CA78;
 	}
 	// sub_9a14(tmp1_vdata, n1, n2, n3, w, 0)
+	if(w != 0) {
+		// create 8bitstruct 正序建立結構
+	}
 	// 最外層
 	datalist = vdata->datalist;
 	
@@ -56,6 +60,8 @@ int sub_9d82(int n1, int n2, int n3, int w,  struct command_arg* arg, int* next_
 		}
 		i++;
 	}
+	
+	
 	typedef *func(void* void*) nfunc;
 	nfunc nextf= (nfunc) next_addr;
 	return nextf(command_arg, next_addr);
