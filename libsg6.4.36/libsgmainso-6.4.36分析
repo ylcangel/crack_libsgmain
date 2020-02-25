@@ -12,7 +12,8 @@ libsgmainso-6.4.36邏輯分析
 部分關鍵代碼存在llvm混淆
 垃圾代碼，靜態分析對抗，擾亂ida分析
 多種加密算法
-
+核心函數如進入到do_command_native的函數不是連續的，函數的連續性被記錄到一系列的
+結構體中，下一個塊需要的獲取需要重新執行do_command_inner
 
 
 LOAD:0000B110 JNI_OnLoad
@@ -1396,7 +1397,7 @@ if (vvarg1[1] != 0)  // 取第二個jarray的值， 這裏值為true
 	r5 = vvarg1[0]; // 取第一個jarray的值
 	// libsgmainso_6.4.36.so:B3E95042 BL              loc_B3E9DC00
 	// 這應該是具體處理邏輯的函數了，分不分析無所謂了
-	32C00()‬->sub_32C46(r5 = 1)‬; // 傳遞的jarray的第一個值
+	32C00()‬->sub_32C46(r5 = 1)‬;  { // 傳遞的jarray的第一個值
 	// 邏輯我就不細緻分析了，這個就涉及到具體算法了，我不想去花時間在逆向算法上
 	// 我們重點是搞清楚它都怎麽做的， 這裏我隨便記錄我想記錄的
 	// 分不分析看心情
@@ -1427,52 +1428,52 @@ if (vvarg1[1] != 0)  // 取第二個jarray的值， 這裏值為true
 	2D228->sub_2D1DA(1,9)->
 	// goto_make_vdata6436
 	sub_301BC(1,9) -> 301DE(index = 1, off = 9) 
-		// 大字符數組
-		// libsgmainso_6.4.36.so:B3EF02FD aA0d11c6a829475d8 DCB "a0d11c6a829475d8",0
-		// libsgmainso_6.4.36.so:B3EF030E aC558656c6b70ed21 DCB "c558656c6b70ed21",0
-		// libsgmainso_6.4.36.so:B3EF031F aHardinfo DCB "hardinfo",0
-		// libsgmainso_6.4.36.so:B3EF0328 a9e83acb65377eab4 DCB "9e83acb65377eab4",0
-		// libsgmainso_6.4.36.so:B3EF0339 a835f56fa8c204d73 DCB "835f56fa8c204d73",0
-		// libsgmainso_6.4.36.so:B3EF034A a711718eb73d90dc5 DCB "711718eb73d90dc5",0
-		// libsgmainso_6.4.36.so:B3EF035B a68787a1ccce468bf DCB "68787a1ccce468bf",0
-		// libsgmainso_6.4.36.so:B3EF036C a999b23355c8909c1 DCB "999b23355c8909c1",0
-		// libsgmainso_6.4.36.so:B3EF037D aA9122d5b7873a0d3 DCB "a9122d5b7873a0d3",0
-		// libsgmainso_6.4.36.so:B3EF038E aD8b057995e905838 DCB "d8b057995e905838",0
-		// libsgmainso_6.4.36.so:B3EF039F a438e0bb7721e9d78 DCB "438e0bb7721e9d78",0
-		// libsgmainso_6.4.36.so:B3EF03B0 a570bfc082fe96042 DCB "570BFC082FE96042",0
-		// libsgmainso_6.4.36.so:B3EF03C1 aE87e68b3aea2d029 DCB "e87e68b3aea2d029",0
-		// libsgmainso_6.4.36.so:B3EF03D2 aEa6c627ab40979d1 DCB "ea6c627ab40979d1",0
-		// libsgmainso_6.4.36.so:B3EF03E3 a816f27e6be7ab193 DCB "816f27e6be7ab193",0
-		// libsgmainso_6.4.36.so:B3EF03F4 aB7b03fe1a0a13745 DCB "b7b03fe1a0a13745",0
-		// libsgmainso_6.4.36.so:B3EF0405 a4c60fa08664a7b66 DCB "4c60fa08664a7b66",0
-		// libsgmainso_6.4.36.so:B3EF0416 a624b4d174ad35f2d DCB "624b4d174ad35f2d",0
-		// libsgmainso_6.4.36.so:B3EF0427 a95ed8b0357989058 DCB "95ed8b0357989058",0
-		// libsgmainso_6.4.36.so:B3EF0438 a00f3acddd00fa671 DCB "00f3acddd00fa671",0
-		// libsgmainso_6.4.36.so:B3EF0449 a6c709c11d2d46a7b DCB "6c709c11d2d46a7b",0
-		// libsgmainso_6.4.36.so:B3EF045A aDd7893586a493dc3 DCB "dd7893586a493dc3",0
-		// libsgmainso_6.4.36.so:B3EF046B a58669b0e4dd2beb8 DCB "58669b0e4dd2beb8",0
-		// libsgmainso_6.4.36.so:B3EF047C a85d32f14e4edccf2 DCB "85d32f14e4edccf2",0
-		// libsgmainso_6.4.36.so:B3EF048D aE5c06c338bfa3568 DCB "e5c06c338bfa3568",0
-		// libsgmainso_6.4.36.so:B3EF049E a8dd236e3120fdbea DCB "8dd236e3120fdbea",0
-		// libsgmainso_6.4.36.so:B3EF04AF a8d8b035705995e98 DCB "8d8b035705995e98",0
-		// libsgmainso_6.4.36.so:B3EF04C0 a0357995e9858d8b0 DCB "0357995e9858d8b0",0
-		// libsgmainso_6.4.36.so:B3EF04D1 aPd DCB "pd",0
-		// libsgmainso_6.4.36.so:B3EF04D4 aDj DCB "dj",0
-		
-		// libsgmainso_6.4.36.so:B3EF59F8 dword_B3EF59F8 DCD 0xB3EF039F
-		arg1 = 1, 獲得數組為off_8A9F8
-		// libsgmainso_6.4.36.so:B3EF59D0 dword_B3EF59D0 DCD 0xB3EF02FD
-		arg1 = 2, 獲得數組為off_8A9D0
-		// libsgmainso_6.4.36.so:B3EF5A20 dword_B3EF5A20 DCD 0xB3EF0438
-		否則，獲得數組為off_8AA20
-		// 這裏為1，即off_8A9F8
-		取字符串off_8A9F8[9] = "d8b057995e905838"
-		// ACB1C9E0
-		//7AF78 goto_create_vdata6436
-		7AF78->sub_7AFB6(0x11) //參數是字符串長度+1,該函數實際上就是create_vdata6436
-		// 實際上就是make_vdata6436
-		// debug023:ACB1C938 DCD 0xACB6A5F8
-		調用vdata6436->f1(vdata6436, "d8b057995e905838", 0x10);
+// 大字符數組
+// B3EF02FD aA0d11c6a829475d8 DCB "a0d11c6a829475d8",0
+// B3EF030E aC558656c6b70ed21 DCB "c558656c6b70ed21",0
+// B3EF031F aHardinfo DCB "hardinfo",0
+// B3EF0328 a9e83acb65377eab4 DCB "9e83acb65377eab4",0
+// B3EF0339 a835f56fa8c204d73 DCB "835f56fa8c204d73",0
+// B3EF034A a711718eb73d90dc5 DCB "711718eb73d90dc5",0
+// B3EF035B a68787a1ccce468bf DCB "68787a1ccce468bf",0
+// B3EF036C a999b23355c8909c1 DCB "999b23355c8909c1",0
+// B3EF037D aA9122d5b7873a0d3 DCB "a9122d5b7873a0d3",0
+// B3EF038E aD8b057995e905838 DCB "d8b057995e905838",0
+// B3EF039F a438e0bb7721e9d78 DCB "438e0bb7721e9d78",0
+// B3EF03B0 a570bfc082fe96042 DCB "570BFC082FE96042",0
+// B3EF03C1 aE87e68b3aea2d029 DCB "e87e68b3aea2d029",0
+// B3EF03D2 aEa6c627ab40979d1 DCB "ea6c627ab40979d1",0
+// B3EF03E3 a816f27e6be7ab193 DCB "816f27e6be7ab193",0
+// B3EF03F4 aB7b03fe1a0a13745 DCB "b7b03fe1a0a13745",0
+// B3EF0405 a4c60fa08664a7b66 DCB "4c60fa08664a7b66",0
+// B3EF0416 a624b4d174ad35f2d DCB "624b4d174ad35f2d",0
+// B3EF0427 a95ed8b0357989058 DCB "95ed8b0357989058",0
+// B3EF0438 a00f3acddd00fa671 DCB "00f3acddd00fa671",0
+// B3EF0449 a6c709c11d2d46a7b DCB "6c709c11d2d46a7b",0
+// B3EF045A aDd7893586a493dc3 DCB "dd7893586a493dc3",0
+// B3EF046B a58669b0e4dd2beb8 DCB "58669b0e4dd2beb8",0
+// B3EF047C a85d32f14e4edccf2 DCB "85d32f14e4edccf2",0
+// B3EF048D aE5c06c338bfa3568 DCB "e5c06c338bfa3568",0
+// B3EF049E a8dd236e3120fdbea DCB "8dd236e3120fdbea",0
+// B3EF04AF a8d8b035705995e98 DCB "8d8b035705995e98",0
+// B3EF04C0 a0357995e9858d8b0 DCB "0357995e9858d8b0",0
+// B3EF04D1 aPd DCB "pd",0
+// B3EF04D4 aDj DCB "dj",0
+	
+	// libsgmainso_6.4.36.so:B3EF59F8 dword_B3EF59F8 DCD 0xB3EF039F
+	arg1 = 1, 獲得數組為off_8A9F8
+	// libsgmainso_6.4.36.so:B3EF59D0 dword_B3EF59D0 DCD 0xB3EF02FD
+	arg1 = 2, 獲得數組為off_8A9D0
+	// libsgmainso_6.4.36.so:B3EF5A20 dword_B3EF5A20 DCD 0xB3EF0438
+	否則，獲得數組為off_8AA20
+	// 這裏為1，即off_8A9F8
+	取字符串off_8A9F8[9] = "d8b057995e905838"
+	// ACB1C9E0
+	//7AF78 goto_create_vdata6436
+	7AF78->sub_7AFB6(0x11) //參數是字符串長度+1,該函數實際上就是create_vdata6436
+	// 實際上就是make_vdata6436
+	// debug023:ACB1C938 DCD 0xACB6A5F8
+	調用vdata6436->f1(vdata6436, "d8b057995e905838", 0x10);
 	
 	繼續調用goto_read_off_8AA50(1, 9) 得到0
 	// 7B148 goto_free_data
@@ -1525,24 +1526,56 @@ if (vvarg1[1] != 0)  // 取第二個jarray的值， 這裏值為true
 	sub_9D82返回0x26b0
 	7C34C->sub_7C3A4(vdata32) // free_data(vdata32); 沒用符合條件，vdata32就沒用到，把它free掉
 	得到剛剛獲取的0x26b0並存儲
-	free_vdata6436(vdata6436); // ACB1C9E0
-	// 代碼是不是跑錯了？
-	// 32cc8->sub_32DC4(0,1,5,2)->sub_32DF0
-	// kgsl?爲什麽取這裏
+	>> 30D24結束
+	free_vdata6436(vdata6436);
+	>> 2D228結束
+	>> 30590結束
 	
-	繼續7AF78->sub_7AFB6(0x11) //參數是字符串長度+1,該函數實際上就是create_vdata6436 ，同上略
-
-	30A04->sub_30A38
-	獲得dword_8CE0C = 0x1003F6，太多了不記錄了，累
+	32cc8->sub_32DC4(0,1,5,2)->sub_32DF0
+	32F14{goto_read_off_8CE6C}->sub_32F44(1) ; // read_off_8CE6C(1)
+	// B3EF7E6C ; _DWORD dword_B3EF7E6C[101]
+	// B3EF7E6C DCD 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+	// B3EF7E6C DCD 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+	// B3EF7E6C DCD 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+	// B3EF7E6C DCD 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+	// B3EF7E6C DCD 0, 0, 0, 0, 0, 0, 0, 0, 0
+	返回0
+	32D78; // 調用5次goto_free_data
+	>> 32cc8結束
+	調用goto_read_off_8AA50(1) // 返回0
+	繼續32cc8略
+	
+	>> 32C00結束
+	}
+	
+	// goto_do_commandx
+	2B468->sub_2B4BE()->73D90{讀取off_xxx值} // get_do_command_fnptr_str; 準備執行do_command_inner
+	// 可以再次調試，證明是調用了docommandinner ; libsgmainso_6.4.36.so:B3E964E4 BLX             R5
+	9DF4(1, 9, 2, 111) // 結果返回0，結束
+	7AF78->sub_7AFB6(0x19) //參數是字符串長度+1,該函數實際上就是create_vdata6436
+	調用vdata6436->f1(vdata6436, "000000000000000000000000", 0x18); // ACB1C938
+	// goto_create_vstring
+	7B5D4(vdata6436, "000000000000000000000000", 0, 0x30)->sub_7B606 // create_vstring ; AD2BEEE0
+	29E98(stackbufp = BE8920EC, stack = BE89216C = NULL)->sub_11F3C(stackbufp, stack)
+	*(BE8920EC + 12) = 0;
+	*(BE8920EC) = 1;
+	2ACB0->sub_2ACDE(arg = 1) // set_wt_flag; 如果arg <= 2 設置dword_8CE10為參數值
+	304E4->(1,0,1)->sub_3052E(1, 0) // do_command_innerx1 
+	//先get_do_command_fnptr_str 重新獲取下一個代碼塊，并執行
+	// 此次獲取了之前構造保存的塊， ACB3B360
+	// 再次執行do_command_inner(1, 8, 2, ...) 返回0
+	30A04->sub_30A38(1)->
+	2D504->sub_2D668(1)->2AC60->sub_2AC8A() ; // get_dword_8CE0C_classid
+	// B3E986A2 BL              sub_B3E9DC00
+	獲得dword_8CE0C = 0x1003F6
+	再次調用32C00略 // 返回0 
+	調用解密
 	// 這個代表啥類呀
 	vdata32 = A1515640
 	解密出"onCallBack"， "(ILjava/lang/String;I)V"
-	調用GetStaticMethodID(env, 0x1003F6, ...); 75F27EA8
-	調用CallStaticVoidMethod(JNIEnv*, 0x1003F6, 75F27EA8, 1); // 我這裏沒有什麽callback，程序就停止了
+	調用GetStaticMethodID(env, 0x1003F6, "onCallBack");
+	調用CallStaticVoidMethod(JNIEnv*, 0x1003F6, onCallBack, 1); // 我這裏沒有實現所謂的什麽callback，程序就停止了
 	
-	BE8920CC
-	libsgmainso-6.4.36.so B3C6B000 0008D000
-
 ------------------------------------------------------------------------------------------------------
 經過這一系列的逆向發現原來sub_9B3C‬()這個函數是用來做函數地址和跳轉command處理的
 最後把處理結果保存在一系列的嵌套的結構體中
