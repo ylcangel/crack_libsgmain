@@ -114,3 +114,8 @@ struct tmp_vdata { // 創建tmp1_vdata時用到
 	void* f1;
 	void* f2;
 };
+
+struct vstring {
+	int len;
+	char* str;
+};

@@ -1476,6 +1476,9 @@ if (vvarg1[1] != 0)  // 取第二個jarray的值， 這裏值為true
 	調用vdata6436->f1(vdata6436, "d8b057995e905838", 0x10);
 	
 	繼續調用goto_read_off_8AA50(1, 9) 得到0
+	
+	>> sub_9D60 結束
+	
 	// 7B148 goto_free_data
 	7B148->sub_7B17A(0); // free_data; 執行free
 	// goto_docommand_inner_contains_create_free_vdata32
@@ -1550,8 +1553,10 @@ if (vvarg1[1] != 0)  // 取第二個jarray的值， 這裏值為true
 	
 	// goto_do_commandx
 	2B468->sub_2B4BE()->73D90{讀取off_xxx值} // get_do_command_fnptr_str; 準備執行do_command_inner
-	// 可以再次調試，證明是調用了docommandinner ; libsgmainso_6.4.36.so:B3E964E4 BLX             R5
-	9DF4(1, 9, 2, 111) // 結果返回0，結束
+	// 再次調試sub_9D60(1, 9, 2, 0, 0x6f, stackbuf = 0xBE8920CC)
+	// 返回調用到0x9854后返回0x26b0保存到0xBE8920CC
+	// 7B148->sub_7B17A(0); // free_data; 執行free 
+	// 9DF4(1, 9, 2, 111) // 結果返回0，結束
 	7AF78->sub_7AFB6(0x19) //參數是字符串長度+1,該函數實際上就是create_vdata6436
 	調用vdata6436->f1(vdata6436, "000000000000000000000000", 0x18); // ACB1C938
 	// goto_create_vstring
