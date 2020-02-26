@@ -525,7 +525,7 @@ libsgmainso_6.4.36.so:AFE80210 BL              loc_AFEF14F4(重命名為goto_cre
 sub_7C4F4();   // 創建全局 jboolean， jinteger、jstring
 
 调试时跳过这里，否则可能崩溃
-LOAD:0000B584 71 F0 14 F8                 BL              goto_getenv
+LOAD:0000B584 71 F0 14 F8                 BL              goto_getenv(7C5B0)
 ---------------------------------------------------------------------------------------------------------------
 #sub_72CCC()，被重命名為goto_do_httpuitl
 主要完成對com/taobao/wireless/security/adapter/common/HttpUtil的各種方法的查找
@@ -1353,6 +1353,8 @@ sub_9a14用
 [stack]:BE892168 DCD 0x12DE5080
 [stack]:BE89216C DCD 0
 
+>> sub_9D60 結束
+
 arg1 = command_arg->arg1;
 跳轉到上面異或出來的地址処 // xor = time ^ sec; // B3E94525地址処，對應文件0x29524処‬
 ‬sub_2956C‬(command_arg, BE89216C); // 獲取傳遞參數arraylist 0xBE8921A0 -> 0x12E51660
@@ -1393,7 +1395,7 @@ sp + 8 = 第二個數組元素對應的值
 [stack]:BE89219C DCD 0x12C357C0
 29FD4‬->sub_2A01E(vvarg1, vvarg2)‬
 
-if (vvarg1[1] != 0)  // 取第二個jarray的值， 這裏值為true
+if (vvarg1[1] != 0)  { // 取第二個jarray的值， 這裏值為true
 	r5 = vvarg1[0]; // 取第一個jarray的值
 	// libsgmainso_6.4.36.so:B3E95042 BL              loc_B3E9DC00
 	// 這應該是具體處理邏輯的函數了，分不分析無所謂了
@@ -1402,159 +1404,154 @@ if (vvarg1[1] != 0)  // 取第二個jarray的值， 這裏值為true
 	// 我們重點是搞清楚它都怎麽做的， 這裏我隨便記錄我想記錄的
 	// 分不分析看心情
 	30590->sub_305BE(1,0) 
-	// 9來自程序中寫死的
-	30240->sub_3026A(1,9)  // v2 = 1, v3 = 9 ; read_off_8AA50(off, index)
-	// 讀取：off_8AA50[108]數組某處的值
-// B3EF5A50 ; _DWORD dword_B3EF5A50[108]
-// B3EF5A50 DCD 0xB3EF7E18, 0xB3EF7E24, 0, 0xB3EF7E30, 0, 0, 0, 0xB3EF7E3C, 0xB3EF7E48
-// B3EF5A50 DCD 0xB3EF7E54, 0xB3EDE9D1, 0xB3EDE951, 0xB3EABEB9, 0, 0, 0, 0xB3EC2385
-// B3EF5A50 DCD 0, 0x14, 0, 0xB3ED48C1, 0, 0, 0xB3EF2AB6, 0xB3EF0C73, 0xB3EF0CC4, 0xB3EF0D15
-// B3EF5A50 DCD 0xB3EF2B08, 0xB3EDB6B1, 0, 0, 0, 3, 0x8AD2C, 2, 0x590, 0x17, 0x3B14
-// B3EF5A50 DCD 0x14, 0x11, 0x11, 0x2704, 0x12, 0x1410, 0x13, 8, 0x6FFFFFFA, 0x276
-// B3EF5A50 DCD 6, 0x18C, 0xB, 0x10, 5, 0x10FC, 0xA, 0xCA2, 4, 0x1DA0, 1, 0xC83, 1
-// B3EF5A50 DCD 0xC8D, 1, 0x15, 1, 0x5A1, 1, 0xC95, 1, 0x181, 0xE, 0x1D, 0x1A, 0x8A2E0
-// B3EF5A50 DCD 0x1C, 8, 0x19, 0x8AACC, 0x1B, 4, 0x1E, 8, 0x6FFFFFFB, 1, 0x6FFFFFF0
-// B3EF5A50 DCD 0x2498, 0x6FFFFFFC, 0x2688, 0x6FFFFFFD, 1, 0x6FFFFFFE, 0x26A4, 0x6FFFFFFF
-// B3EF5A50 DCD 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-	// 第一次計算off_8AA50[9] = 0xB3EF7E54 = 文件偏移8CE54
-	// 第二次計算 [0xB3EF7E54 + 4] =  0
-	// libsgmainso_6.4.36.so:B3EF7E58 DCD 0
-    v5 = *(_DWORD *)(off_8AA50[index] + 4 * off); 
-    if ( v5 && *(_DWORD *)(v5 + 4) ) // 不成立
-      v6 = (*(int (**)(void))(v5 + 40))();
-    else
-      v6 = 0;
-	  // 返回0
-	2D228->sub_2D1DA(1,9)->
-	// goto_make_vdata6436
-	sub_301BC(1,9) -> 301DE(index = 1, off = 9) 
-// 大字符數組
-// B3EF02FD aA0d11c6a829475d8 DCB "a0d11c6a829475d8",0
-// B3EF030E aC558656c6b70ed21 DCB "c558656c6b70ed21",0
-// B3EF031F aHardinfo DCB "hardinfo",0
-// B3EF0328 a9e83acb65377eab4 DCB "9e83acb65377eab4",0
-// B3EF0339 a835f56fa8c204d73 DCB "835f56fa8c204d73",0
-// B3EF034A a711718eb73d90dc5 DCB "711718eb73d90dc5",0
-// B3EF035B a68787a1ccce468bf DCB "68787a1ccce468bf",0
-// B3EF036C a999b23355c8909c1 DCB "999b23355c8909c1",0
-// B3EF037D aA9122d5b7873a0d3 DCB "a9122d5b7873a0d3",0
-// B3EF038E aD8b057995e905838 DCB "d8b057995e905838",0
-// B3EF039F a438e0bb7721e9d78 DCB "438e0bb7721e9d78",0
-// B3EF03B0 a570bfc082fe96042 DCB "570BFC082FE96042",0
-// B3EF03C1 aE87e68b3aea2d029 DCB "e87e68b3aea2d029",0
-// B3EF03D2 aEa6c627ab40979d1 DCB "ea6c627ab40979d1",0
-// B3EF03E3 a816f27e6be7ab193 DCB "816f27e6be7ab193",0
-// B3EF03F4 aB7b03fe1a0a13745 DCB "b7b03fe1a0a13745",0
-// B3EF0405 a4c60fa08664a7b66 DCB "4c60fa08664a7b66",0
-// B3EF0416 a624b4d174ad35f2d DCB "624b4d174ad35f2d",0
-// B3EF0427 a95ed8b0357989058 DCB "95ed8b0357989058",0
-// B3EF0438 a00f3acddd00fa671 DCB "00f3acddd00fa671",0
-// B3EF0449 a6c709c11d2d46a7b DCB "6c709c11d2d46a7b",0
-// B3EF045A aDd7893586a493dc3 DCB "dd7893586a493dc3",0
-// B3EF046B a58669b0e4dd2beb8 DCB "58669b0e4dd2beb8",0
-// B3EF047C a85d32f14e4edccf2 DCB "85d32f14e4edccf2",0
-// B3EF048D aE5c06c338bfa3568 DCB "e5c06c338bfa3568",0
-// B3EF049E a8dd236e3120fdbea DCB "8dd236e3120fdbea",0
-// B3EF04AF a8d8b035705995e98 DCB "8d8b035705995e98",0
-// B3EF04C0 a0357995e9858d8b0 DCB "0357995e9858d8b0",0
-// B3EF04D1 aPd DCB "pd",0
-// B3EF04D4 aDj DCB "dj",0
-	
-	// libsgmainso_6.4.36.so:B3EF59F8 dword_B3EF59F8 DCD 0xB3EF039F
-	arg1 = 1, 獲得數組為off_8A9F8
-	// libsgmainso_6.4.36.so:B3EF59D0 dword_B3EF59D0 DCD 0xB3EF02FD
-	arg1 = 2, 獲得數組為off_8A9D0
-	// libsgmainso_6.4.36.so:B3EF5A20 dword_B3EF5A20 DCD 0xB3EF0438
-	否則，獲得數組為off_8AA20
-	// 這裏為1，即off_8A9F8
-	取字符串off_8A9F8[9] = "d8b057995e905838"
-	// ACB1C9E0
-	//7AF78 goto_create_vdata6436
-	7AF78->sub_7AFB6(0x11) //參數是字符串長度+1,該函數實際上就是create_vdata6436
-	// 實際上就是make_vdata6436
-	// debug023:ACB1C938 DCD 0xACB6A5F8
-	調用vdata6436->f1(vdata6436, "d8b057995e905838", 0x10);
-	
-	繼續調用goto_read_off_8AA50(1, 9) 得到0
-	
-	>> sub_9D60 結束
-	
-	// 7B148 goto_free_data
-	7B148->sub_7B17A(0); // free_data; 執行free
-	// goto_docommand_inner_contains_create_free_vdata32
-	// ACB1C938; goto_create_vdata32; do_command_inner; free_vdata32
-	30D24->sub_30D60(vdata6436,9,1,0,0,1); 
-	7C218->sub_7C258("d8b057995e905838", 0x10) // geto_create_vdata32
-	struct vdata32_nest {
-		void* nf1;
-		void* nf2;
-		void* nf3;
-		void* nf4;
-	};
+		// 9來自程序中寫死的
+		30240->sub_3026A(1,9)  // v2 = 1, v3 = 9 ; read_off_8AA50(off, index)
+		// 讀取：off_8AA50[108]數組某處的值, 這個值可能是一個結構指針，後面邏輯會把它free
+		// B3EF5A50 ; _DWORD dword_B3EF5A50[108]
+		// B3EF5A50 DCD 0xB3EF7E18, 0xB3EF7E24, 0, 0xB3EF7E30, 0, 0, 0, 0xB3EF7E3C, 0xB3EF7E48
+		// B3EF5A50 DCD 0xB3EF7E54, 0xB3EDE9D1, 0xB3EDE951, 0xB3EABEB9, 0, 0, 0, 0xB3EC2385
+		// B3EF5A50 DCD 0, 0x14, 0, 0xB3ED48C1, 0, 0, 0xB3EF2AB6, 0xB3EF0C73, 0xB3EF0CC4, 0xB3EF0D15
+		// B3EF5A50 DCD 0xB3EF2B08, 0xB3EDB6B1, 0, 0, 0, 3, 0x8AD2C, 2, 0x590, 0x17, 0x3B14
+		// B3EF5A50 DCD 0x14, 0x11, 0x11, 0x2704, 0x12, 0x1410, 0x13, 8, 0x6FFFFFFA, 0x276
+		// B3EF5A50 DCD 6, 0x18C, 0xB, 0x10, 5, 0x10FC, 0xA, 0xCA2, 4, 0x1DA0, 1, 0xC83, 1
+		// B3EF5A50 DCD 0xC8D, 1, 0x15, 1, 0x5A1, 1, 0xC95, 1, 0x181, 0xE, 0x1D, 0x1A, 0x8A2E0
+		// B3EF5A50 DCD 0x1C, 8, 0x19, 0x8AACC, 0x1B, 4, 0x1E, 8, 0x6FFFFFFB, 1, 0x6FFFFFF0
+		// B3EF5A50 DCD 0x2498, 0x6FFFFFFC, 0x2688, 0x6FFFFFFD, 1, 0x6FFFFFFE, 0x26A4, 0x6FFFFFFF
+		// B3EF5A50 DCD 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+		// 第一次計算off_8AA50[9] = 0xB3EF7E54 = 文件偏移8CE54
+		// 第二次計算 [0xB3EF7E54 + 4] =  0
+		// libsgmainso_6.4.36.so:B3EF7E58 DCD 0
+		v5 = *(_DWORD *)(off_8AA50[index] + 4 * off); 
+		if ( v5 && *(_DWORD *)(v5 + 4) ) // 不成立
+		  v6 = (*(int (**)(void))(v5 + 40))();
+		else
+		  v6 = 0;
+		  // 返回0
+		2D228->sub_2D1DA(1,9)->
+			// goto_make_vdata6436
+			sub_301BC(1,9) -> 301DE(index = 1, off = 9) 
+			// 大字符數組
+			// B3EF02FD aA0d11c6a829475d8 DCB "a0d11c6a829475d8",0
+			// B3EF030E aC558656c6b70ed21 DCB "c558656c6b70ed21",0
+			// B3EF031F aHardinfo DCB "hardinfo",0
+			// B3EF0328 a9e83acb65377eab4 DCB "9e83acb65377eab4",0
+			// B3EF0339 a835f56fa8c204d73 DCB "835f56fa8c204d73",0
+			// B3EF034A a711718eb73d90dc5 DCB "711718eb73d90dc5",0
+			// B3EF035B a68787a1ccce468bf DCB "68787a1ccce468bf",0
+			// B3EF036C a999b23355c8909c1 DCB "999b23355c8909c1",0
+			// B3EF037D aA9122d5b7873a0d3 DCB "a9122d5b7873a0d3",0
+			// B3EF038E aD8b057995e905838 DCB "d8b057995e905838",0
+			// B3EF039F a438e0bb7721e9d78 DCB "438e0bb7721e9d78",0
+			// B3EF03B0 a570bfc082fe96042 DCB "570BFC082FE96042",0
+			// B3EF03C1 aE87e68b3aea2d029 DCB "e87e68b3aea2d029",0
+			// B3EF03D2 aEa6c627ab40979d1 DCB "ea6c627ab40979d1",0
+			// B3EF03E3 a816f27e6be7ab193 DCB "816f27e6be7ab193",0
+			// B3EF03F4 aB7b03fe1a0a13745 DCB "b7b03fe1a0a13745",0
+			// B3EF0405 a4c60fa08664a7b66 DCB "4c60fa08664a7b66",0
+			// B3EF0416 a624b4d174ad35f2d DCB "624b4d174ad35f2d",0
+			// B3EF0427 a95ed8b0357989058 DCB "95ed8b0357989058",0
+			// B3EF0438 a00f3acddd00fa671 DCB "00f3acddd00fa671",0
+			// B3EF0449 a6c709c11d2d46a7b DCB "6c709c11d2d46a7b",0
+			// B3EF045A aDd7893586a493dc3 DCB "dd7893586a493dc3",0
+			// B3EF046B a58669b0e4dd2beb8 DCB "58669b0e4dd2beb8",0
+			// B3EF047C a85d32f14e4edccf2 DCB "85d32f14e4edccf2",0
+			// B3EF048D aE5c06c338bfa3568 DCB "e5c06c338bfa3568",0
+			// B3EF049E a8dd236e3120fdbea DCB "8dd236e3120fdbea",0
+			// B3EF04AF a8d8b035705995e98 DCB "8d8b035705995e98",0
+			// B3EF04C0 a0357995e9858d8b0 DCB "0357995e9858d8b0",0
+			// B3EF04D1 aPd DCB "pd",0
+			// B3EF04D4 aDj DCB "dj",0
+				// libsgmainso_6.4.36.so:B3EF59F8 dword_B3EF59F8 DCD 0xB3EF039F
+				arg1 = 1, 獲得數組為off_8A9F8
+				// libsgmainso_6.4.36.so:B3EF59D0 dword_B3EF59D0 DCD 0xB3EF02FD
+				arg1 = 2, 獲得數組為off_8A9D0
+				// libsgmainso_6.4.36.so:B3EF5A20 dword_B3EF5A20 DCD 0xB3EF0438
+				否則，獲得數組為off_8AA20
+				// 這裏為1，即off_8A9F8
+				取字符串off_8A9F8[9] = "d8b057995e905838"
+				// ACB1C9E0
+				//7AF78 goto_create_vdata6436
+				7AF78->sub_7AFB6(0x11) //參數是字符串長度+1,該函數實際上就是create_vdata6436
+				// 實際上就是make_vdata6436
+				// debug023:ACB1C938 DCD 0xACB6A5F8
+				調用vdata6436->f1(vdata6436, "d8b057995e905838", 0x10);
+			// 30240->sub_3026A(1,9)
+			繼續調用goto_read_off_8AA50(1, 9) 得到結構指針為NULL
+			// 7B148 goto_free_data
+			7B148->sub_7B17A(0); // free_data; 執行free
+			// goto_docommand_inner_contains_create_free_vdata32
+			// ACB1C938; goto_create_vdata32; do_command_inner; free_vdata32
+			30D24->sub_30D60(vdata6436,9,1,0,0,1); 
+				7C218->sub_7C258("d8b057995e905838", 0x10) // geto_create_vdata32
+					struct vdata32_nest {
+						void* nf1;
+						void* nf2;
+						void* nf3;
+						void* nf4;
+					};
 
-	struct vdata32 {
-		struct data* data128;
-		int data_count;
-		int chunk_size;
-		void* f1; // goto_make_vdata32;
-		struct vdata32_nest* nest;
-	};
-	// debug018:ACB6A5C8
-	7C0D4->sub_7C10C("d8b057995e905838", 0x10); // A1619860; create_vdata32
-	7C280->sub_7C2C8(vdata32, "d8b057995e905838", 0x10); // goto_make_vdata32
-	73D90 // 讀取off_90804{讀取off_xxx}的值x，這是之前保存起來的
-	// debug018:ACB11E20 DCD 0xAFE7EA99
-	// debug018:ACB11E24 DCD 0xAFE7EDF5
-	// debug018:ACB11E28 DCD 0xAFE7EE49
-	// 讀取[x + 4] = 0xAFE7EDF5，好像是fnPtr，後面跳到這個地址執行
-	[stack]:BE892078 DCD 0xBE89207C // sp
-	[stack]:BE89207C DCD 0
-	[stack]:BE892080 DCD 0xA1619860 // vdata32
-	{1, 0x15, 2, vdata32, 指向sp+4的指針}
-	sub_9E30重新設置參數
-	[stack]:BE892068 DCD 0xBE892080 sp
-	[stack]:BE89206C DCD 0xBE89207C sp + 4
-	最終走到sub_9D82(1, 0x15, 2, 0, vdata32p, &saved_addrp) // command_native_inner
-	// 不滿足查找條件，返回0x26b0
-	存儲0x26b0到[stack]:BE89207C処
-	[stack]:BE89207C DCD 0x26B0
-	[stack]:BE892080 DCD 0xA1515580
-	[stack]:BE892084 DCD 1
-	[stack]:BE892088 DCD 7
-	[stack]:BE89208C DCD 0xB47A9038
-	[stack]:BE892090 DCD 1
-	[stack]:BE892094 DCD 9
-	[stack]:BE892098 DCD 0xBE8920AC
-	[stack]:BE89209C DCD 0xB3C98207
-	sub_9D82返回0x26b0
-	7C34C->sub_7C3A4(vdata32) // free_data(vdata32); 沒用符合條件，vdata32就沒用到，把它free掉
-	得到剛剛獲取的0x26b0並存儲
-	>> 30D24結束
-	free_vdata6436(vdata6436);
-	>> 2D228結束
-	>> 30590結束
-	
+					struct vdata32 {
+						struct data* data128;
+						int data_count;
+						int chunk_size;
+						void* f1; // goto_make_vdata32;
+						struct vdata32_nest* nest;
+					};
+					// debug018:ACB6A5C8
+					7C0D4->sub_7C10C("d8b057995e905838", 0x10); // A1619860; create_vdata32
+					7C280->sub_7C2C8(vdata32, "d8b057995e905838", 0x10); // goto_make_vdata32
+				73D90 // 讀取off_90804{讀取off_xxx}的值x，這是之前保存起來的
+				// debug018:ACB11E20 DCD 0xAFE7EA99
+				// debug018:ACB11E24 DCD 0xAFE7EDF5
+				// debug018:ACB11E28 DCD 0xAFE7EE49
+			
+				// 讀取[x + 4] = 0xAFE7EDF5，好像是fnPtr，後面跳到這個地址執行
+				[stack]:BE892078 DCD 0xBE89207C // sp
+				[stack]:BE89207C DCD 0
+				[stack]:BE892080 DCD 0xA1619860 // vdata32
+				{1, 0x15, 2, vdata32, 指向sp+4的指針}
+				sub_9E30重新設置參數
+				[stack]:BE892068 DCD 0xBE892080 sp
+				[stack]:BE89206C DCD 0xBE89207C sp + 4
+				走到9D60最終走到sub_9D82(1, 0x15, 2, 0, vdata32p, &saved_addrp) // command_native_inner
+				// 不滿足查找條件，返回0x26b0
+				存儲0x26b0到[stack]:BE89207C処
+				[stack]:BE89207C DCD 0x26B0
+				[stack]:BE892080 DCD 0xA1515580
+				[stack]:BE892084 DCD 1
+				[stack]:BE892088 DCD 7
+				[stack]:BE89208C DCD 0xB47A9038
+				[stack]:BE892090 DCD 1
+				[stack]:BE892094 DCD 9
+				[stack]:BE892098 DCD 0xBE8920AC
+				[stack]:BE89209C DCD 0xB3C98207
+				sub_9D82返回0x26b0
+				7C34C->sub_7C3A4(vdata32) // free_data(vdata32); 沒用符合條件，vdata32就沒用到，把它free掉
+				得到剛剛獲取的0x26b0並存儲
+			7B148->sub_7B17A(0); // free_data; 執行free; free_vdata6436(vdata6436);
+			
 	32cc8->sub_32DC4(0,1,5,2)->sub_32DF0
-	32F14{goto_read_off_8CE6C}->sub_32F44(1) ; // read_off_8CE6C(1)
-	// B3EF7E6C ; _DWORD dword_B3EF7E6C[101]
-	// B3EF7E6C DCD 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-	// B3EF7E6C DCD 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-	// B3EF7E6C DCD 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-	// B3EF7E6C DCD 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-	// B3EF7E6C DCD 0, 0, 0, 0, 0, 0, 0, 0, 0
-	返回0
-	32D78; // 調用5次goto_free_data
-	>> 32cc8結束
-	調用goto_read_off_8AA50(1) // 返回0
-	繼續32cc8略
-	
-	>> 32C00結束
+		32F14{goto_read_off_8CE6C}->sub_32F44(1) ; // read_off_8CE6C(1)
+		// B3EF7E6C ; _DWORD dword_B3EF7E6C[101]
+		// B3EF7E6C DCD 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+		// B3EF7E6C DCD 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+		// B3EF7E6C DCD 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+		// B3EF7E6C DCD 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+		// B3EF7E6C DCD 0, 0, 0, 0, 0, 0, 0, 0, 0
+		返回0
+		32D78; // 調用5次goto_free_data, free掉查找到的結構指針, 應該是這個command用到的相關塊的結構
+		
+	7B148->sub_7B17A(0); // free_data; 執行free
+	30240->sub_3026A(1,9); // 調用goto_read_off_8AA50(1); 同上略
+	32cc8 // 繼續32cc8, 同上略
 	}
+}
 	
 	// goto_do_commandx
 	2B468->sub_2B4BE()->73D90{讀取off_xxx值} // get_do_command_fnptr_str; 準備執行do_command_inner
 	// 再次調試sub_9D60(1, 9, 2, 0, 0x6f, stackbuf = 0xBE8920CC)
 	// 返回調用到0x9854后返回0x26b0保存到0xBE8920CC
+	// 應該是讀取結構指針，然後釋放
 	// 7B148->sub_7B17A(0); // free_data; 執行free 
 	// 9DF4(1, 9, 2, 111) // 結果返回0，結束
 	7AF78->sub_7AFB6(0x19) //參數是字符串長度+1,該函數實際上就是create_vdata6436
@@ -1573,13 +1570,13 @@ if (vvarg1[1] != 0)  // 取第二個jarray的值， 這裏值為true
 	2D504->sub_2D668(1)->2AC60->sub_2AC8A() ; // get_dword_8CE0C_classid
 	// B3E986A2 BL              sub_B3E9DC00
 	獲得dword_8CE0C = 0x1003F6
-	再次調用32C00略 // 返回0 
-	調用解密
-	// 這個代表啥類呀
-	vdata32 = A1515640
+	再次調用32C00略 // 返回0, 實際也沒看到做什麽實質動作
+	獲取env，sub_2D6B8調用解密
+	// 沒有連續性，不知道暫時是哪個類
 	解密出"onCallBack"， "(ILjava/lang/String;I)V"
 	調用GetStaticMethodID(env, 0x1003F6, "onCallBack");
-	調用CallStaticVoidMethod(JNIEnv*, 0x1003F6, onCallBack, 1); // 我這裏沒有實現所謂的什麽callback，程序就停止了
+	調用CallStaticVoidMethod(JNIEnv*, 0x1003F6, onCallBack, 1, NULL, 0x386); 
+	// 我這裏沒有實現所謂的什麽callback，程序就停止了
 	
 ------------------------------------------------------------------------------------------------------
 經過這一系列的逆向發現原來sub_9B3C‬()這個函數是用來做函數地址和跳轉command處理的
