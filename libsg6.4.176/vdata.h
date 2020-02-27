@@ -37,7 +37,7 @@ struct vdata_6436 { // 對應版本6.4.36
 	void* f6;
 	void* f7;
 	void* f8;
-	struct vdata_6436_nest* nest6436;
+	struct vdata_6436_nest* nest;
 };
 
 struct dcryptdata {
@@ -64,20 +64,26 @@ struct vdata32 {
 	struct vdata32_nest* nest;
 };
 
-struct tmp1_nest {
-	void* tmp1_nf1;
-	void* tmp1_nf2;
+struct global_command_entry { // 記錄著生成和執行command的核心方法
+	void* goto_make_command_entry; // 對應sub_9B3C
+	void* goto_do_command1; // // 對應sub_9d82; command_native_inner
+	void* goto_do_command2; // 對應sub_9e7e; 和sub_9d82差不多
+};
+
+struct command_nest {
+	void* nf1;
+	void* nf2;
 	int len;
 };
 
-struct tmp1_vdata {
+struct command_vdata {
 	struct data** datalist; // 第一層$8bitstruct
 	int data_count;
 	int data_size;
-	void* tmp1_f1;
-	void* tmp1_f2;
-	void* tmp1_f3;
-	struct tmp1_nest* nest;
+	void* f1;
+	void* f2;
+	void* f3;
+	struct command_nest* nest;
 };
 
 struct $8bitstruct {
@@ -107,12 +113,6 @@ struct command_arg {
 	int arg3;
 	_JNIEnv* env;
 	void* args;
-};
-
-struct tmp_vdata { // 創建tmp1_vdata時用到
-	char* wh;
-	void* f1;
-	void* f2;
 };
 
 struct vstring {
