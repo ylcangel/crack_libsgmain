@@ -17,8 +17,8 @@ signed int make_global_command_ptr()
       return result;
     v0->goto_do_command1 = 0;
     v0->goto_make_command_entry = 0;
-    gtmp1_vdata1 = goto_create_tmp1vdata_(0); // 全局，記錄有關command結構指針
-    gtmp1_vdata2 = goto_create_tmp1vdata_(0); // 全局，記錄有關command結構指針
+    gcommand_vdata1 = goto_create_tmp1vdata_(0); // 全局，記錄有關command結構指針
+    gcommand_vdata2 = goto_create_tmp1vdata_(0); // 全局，記錄有關command結構指針
     v0->goto_make_command_entry = sub_B3E74A98;
     v0->goto_do_command1 = sub_B3E74DF4;
     v0->goto_do_command2 = sub_B3E74E48;
