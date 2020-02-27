@@ -1,24 +1,28 @@
-signed int sub_9F1C()
+struct global_command_entry { // 記錄著生成和執行command的核心方法
+	void* goto_make_command_entry; // 對應sub_9B3C; 生成command結構核心算法
+	void* goto_do_command1; // // 對應sub_9d82; command_native_inner
+	void* goto_do_command2; // 對應sub_9e7e; 和sub_9d82差不多
+};
+
+signed int make_global_command_ptr()
 {
-  int v0; // r0@1
-  tmp_vdata *v1; // r4@2
+  struct global_command_entry *v0; // r4@2
   signed int result; // r0@2
 
-  sub_B3FA1D90();
-  if ( !v0 )
+  if ( !get_global_command_entryptr() ) // 全局
   {
-    v1 = (tmp_vdata *)malloc(12);
+    v0 = (global_command_entry *)malloc(12);
     result = 0;
-    if ( !v1 )
+    if ( !v0 )
       return result;
-    v1->f1 = 0;
-    v1->wh = 0;
-    gtmp1_data1_ = goto_create_tmp1vdata(0);     // 0x20,0 , 全局
-    gtmp1_data2 = goto_create_tmp1vdata(0);      // 0x20,0
-    v1->wh = (char *)&dword_B3F37A99;
-    v1->f1 = sub_B3F37DF4;
-    v1->f2 = sub_B3F37E48;
-    sub_B3FA1DD4(v1);
+    v0->goto_do_command1 = 0;
+    v0->goto_make_command_entry = 0;
+    gtmp1_vdata1 = goto_create_tmp1vdata_(0); // 全局，記錄有關command結構指針
+    gtmp1_vdata2 = goto_create_tmp1vdata_(0); // 全局，記錄有關command結構指針
+    v0->goto_make_command_entry = sub_B3E74A98;
+    v0->goto_do_command1 = sub_B3E74DF4;
+    v0->goto_do_command2 = sub_B3E74E48;
+    set_global_command_entryptr(v0);
   }
   return 1;
 }

@@ -606,35 +606,44 @@ sub_73634()結束
 ---------------------------------------------------------------------------------------------------------------
 sub_73E24()      goto_decrypt_entry(AFEF8EA6, BE9035E8, 49)
 解密出"com/taobao/wireless/security/adapter/JNICLibrary"
-libsgmainso_6.4.36.so B3F2E000 B3FB7000 R . X D . byte 00 public CODE 32 00 00
+libsgmainso_6.4.36.so B3F2D000 B3FB7000 R . X D . byte 00 public CODE 32 00 00
 調用env->findclass查找JNICLibrary 00200025
 bl 9EE4‬
-sub_9ee4() 被重命名為goto_create_tmp1vdata_，主要是調用sub_9F1C完成創建兩個大的結構體
-sub_9F1C()
+sub_9ee4() 被重命名為goto_create_command_vdata，主要是調用sub_9F1C完成創建兩個大的結構體
+sub_9F1C() // make_global_command_ptr
+首先讀取off_90804処的值是否為NULL(被重命名為global_command_entryptr
+它保存著下面的global_command_entry結構的指針)
+
+struct global_command_entry { // 記錄著生成和執行command的核心方法
+	void* goto_make_command_entry; // 對應sub_9B3C; 生成command結構核心算法
+	void* goto_do_command1; // // 對應sub_9d82; command_native_inner
+	void* goto_do_command2; // 對應sub_9e7e; 和sub_9d82差不多
+};
+
 ACC11F60 = malloc(12); // 這是個什麽結構體,暫且命名為tmp_vdata
-debug014:ACC11F60 DCD 0xB3F36A99
-debug014:ACC11F64 DCD 0xB3F36DF5
-debug014:ACC11F68 DCD 0xB3F36E49
-sub_7B86C(32,0) // 重命名為create_tmp1vdata(int len, int w); // len表示結構體大小，w未知
-struct tmp1_nest {
-	void* tmp1_nf1;
-	void* tmp1_nf2;
+debug014:ACC11F60 DCD 0xB3F36A99 // 對應sub_9B3C; 生成command結構核心算法
+debug014:ACC11F64 DCD 0xB3F36DF5 // 對應sub_9d82; command_native_inner
+debug014:ACC11F68 DCD 0xB3F36E49 // 對應sub_9e7e; 和sub_9d82差不多
+sub_7B86C(32,0) // 重命名為create_command_vdata(int len, int w); // len表示結構體大小，w未知
+struct command_nest {
+	void* nf1;
+	void* nf2;
 	int len;
 };
 
-struct tmp1_vdata {
+struct command_vdata {
 	struct data** datalist; // 第一層$8bitstruct
 	int data_count;
 	int data_size;
-	void* tmp1_f1;
-	void* tmp1_f2;
-	void* tmp1_f3;
-	struct tmp1_nest* nest;
+	void* f1;
+	void* f2;
+	void* f3;
+	struct command_nest* nest;
 };
 
 ACC3A3D0 = malloc(36);
-創建tmp1_vdata結構體，對應内存結構：
-debug014:ACC3A3D0 DCD 0xACC49300                          ; tmp1_vdata1
+創建command_vdata結構體，對應内存結構：
+debug014:ACC3A3D0 DCD 0xACC49300                          ; command_vdata1
 debug014:ACC3A3D4 DCD 0
 debug014:ACC3A3D8 DCD 0x20
 debug014:ACC3A3DC DCD 0xB3FA88F9
@@ -645,9 +654,8 @@ debug014:ACC3A3EC DCD 0xB3FA8AF1
 debug014:ACC3A3F0 DCD 0
 創建data結構體(chunk)
 ACC49300 = malloc(128);
-
-創建第二個tmp1_vdata結構體ACC3A3A8
-debug014:ACC3A3A8 DCD 0xACC49280                          ; tmp1_vdata2
+創建第二個command_vdata結構體ACC3A3A8
+debug014:ACC3A3A8 DCD 0xACC49280                          ; command_vdata2
 debug014:ACC3A3AC DCD 0
 debug014:ACC3A3B0 DCD 0x20
 debug014:ACC3A3B4 DCD 0xB3FA88F9
@@ -658,12 +666,13 @@ debug014:ACC3A3C4 DCD 0xB3FA8AF1
 debug014:ACC3A3C8 DCD 0
 創建第二個data結構體ACC49280
 然後把它倆存儲在以下地方：
-libsgmainso_6.4.36.so:B3FB9A78 gtmp1_data2 DCD 0xACC3A3A8 
-libsgmainso_6.4.36.so:B3FB9A7C gtmp1_data1 DCD 0xACC3A3D0 
+off_8CA7C gcommand_vdata1 DCD 0xACC3A3D0
+off_8CA78 gcommand_vdata2 DCD 0xACC3A3A8
+在off_90804処保存global_command_entry指針
 ---------------------------------------------------------------------------------------------------------------
 bl sub_71D68()‬,重命名為goto_do_SPUtility2
 主要是查找com/taobao/wireless/security/adapter/common/SPUtility2的一些methoidID
-sub_sub_73DD4()啥也沒乾
+sub_73DD4()啥也沒乾
 
 sub_71E70只是用來構造參數
 sub_72080()
@@ -694,30 +703,29 @@ sub_E890‬()
 調用findclass，0010002D，調用NewGlobalRef創建該類的ref 001003DE
 調用DeleteLocalRef, 刪除本地DeviceInfoCapturer類的ref
 解密出"doCommandForString"
-調用env-getStaticMethodID("doCommandForString"),75F27048
+調用env-getStaticMethodID("doCommandForString"),75F27048  存儲在off_8CA94処
 存儲在以下位置：
-libsgmainso_6.4.36.so:B3FB9A94 global_DeviceInfoCapturer_methodId DCD 0x75F27048
-libsgmainso_6.4.36.so:B3FB7C00 global_DeviceInfoCapturer_ref DCD 0xB6F33E04
+off_8CA94 global_DeviceInfoCapturer_methodId DCD 0x75F27048
+off_8CA98 global_DeviceInfoCapturer_ref DCD 0xB6F33E04
+
 
 sub_9B3C‬(), 不知道在幹嘛，一堆跳和賦值，感覺向被llvm混淆過，
-
-
 sub_9854() 它會記錄時間
 struct $8bitstruct {
 	int command_arg1; // command arg1
-	struct tmp1_vdata* vdata; // 指向第二層
+	struct command_vdata* vdata; // 指向第二層
 };
 8bitstruct = B4F01130 = malloc(8); 暫時不知道代表啥
-debug070:B4F01130 DCD 1                                   ; 8字節數據，裏面存儲著tmp1_vdata3
-debug070:B4F01134 DCD 0xACC3A3F8                          ; tmp1_vdata3
+debug070:B4F01130 DCD 1                                   ; 8字節數據，裏面存儲著command_vdata3
+debug070:B4F01134 DCD 0xACC3A3F8                          ; command_vdata3
 
-再次調用create_tmp1vdata
-debug014:ACC3A3F8 DCB 0                                   ; tmp1_vdata3
-debug014:ACC49380 DCB    0                                ; tmp1_data3
+再次調用create_commandvdata
+debug014:ACC3A3F8 DCB 0                                   ; command_vdata3
+debug014:ACC49380 DCB    0                                ; command_data3
 
-sub_7B93A(tmp1_vdata2, 0， B4F01130); //tmp1_vdata的函數f2，填充數據
-執行完畢tmp1_vdata2變爲：
-debug014:ACC3A3A8 DCD 0xACC49280                          ; tmp1_vdata2
+sub_7B93A(command_vdata2, 0， B4F01130); //command_vdata的函數f2，填充數據
+執行完畢command_vdata2變爲：
+debug014:ACC3A3A8 DCD 0xACC49280                          ; command_vdata2
 debug014:ACC3A3AC DCD 1
 debug014:ACC3A3B0 DCD 0x20
 debug014:ACC3A3B4 DCD 0xB3FA88F9
@@ -735,7 +743,7 @@ struct $24bitstruct {
 	int command_arg2; // command arg2
 	long time;
 	int c; // 未知
-	struct tmp1_vdata* vdata; // 指向第三層
+	struct command_vdata* vdata; // 指向第三層
 	int d; // 未知
 };
 調用time,srand48,lrand48
@@ -744,12 +752,12 @@ debug014:ACC125B0 DCD 1                                   ; 24字節的結構,�
 debug014:ACC125B4 DCD 9
 debug014:ACC125B8 DCD 0x26BD7CF6
 debug014:ACC125BC DCD 0
-debug014:ACC125C0 DCD 0xACC3A498 ;tmp1_vdata4
+debug014:ACC125C0 DCD 0xACC3A498 ;command_vdata4
 debug014:ACC125C4 DCD 0
 
-在調用goto_create_tmp1vdata
-debug014:ACC3A498 DCB    0                                ; tmp1_vdata4
-debug014:ACC49400 DCB 0x52 ; R                            ; tmp1_data4
+在調用goto_create_commandvdata
+debug014:ACC3A498 DCB    0                                ; command_vdata4
+debug014:ACC49400 DCB 0x52 ; R                            ; command_data4
 
 ACC11F80 = malloc(16); // 16字節的結構
 debug014:ACC11F80 DCD 1                                   ; 16字節結構
@@ -764,12 +772,12 @@ struct $16bitstruct {
 	int xoraddr;
 };
 
-繼續調用tmp1_vdata的函數f2(tmp1_vdata4, 0, ACC11F80);tmp1_vdata4變爲：
-debug014:ACC3A498 DCD 0xACC49400                          ; tmp1_vdata4
+繼續調用command_vdata的函數f2(command_vdata4, 0, ACC11F80);command_vdata4變爲：
+debug014:ACC3A498 DCD 0xACC49400                          ; command_vdata4
 debug014:ACC3A49C DCD 1
 debug014:ACC3A4A0 DCD 0x20
 
-debug014:ACC49400 DCD 0xACC11F80                          ; tmp1_data4, 指向ACC11F80，16字節的結構
+debug014:ACC49400 DCD 0xACC11F80                          ; command_data4, 指向ACC11F80，16字節的結構
 sub_9854() 結束
 TODO 有可能拉下東西了
 ---------------------------------------------------------------------------------------------------------------
@@ -795,14 +803,14 @@ sub_73D90()‬ 啥也沒乾
 
 丟掉了記錄8字節内存
 8bitstruct = ？？ = malloc(8); 暫時不知道代表啥
-debug014:ACC3A4C0 DCD 0xACC49480                          ; tmp1_vdata4
+debug014:ACC3A4C0 DCD 0xACC49480                          ; command_vdata4
 
 24bitstruct = debug014:ACC125E0 = malloc(24)
 debug014:ACC125E0 DCD 1                                   ; 24bitstruct2
 debug014:ACC125E4 DCD 0xB
 debug014:ACC125E8 DCD 0x7FF75E63
 debug014:ACC125EC DCD 0
-debug014:ACC125F0 DCD 0xACC3A4C0 ; tmp1_vdata4
+debug014:ACC125F0 DCD 0xACC3A4C0 ; command_vdata4
 debug014:ACC125F4 DCD 0
 
 ACC11FC0 = malloc(16);
@@ -811,12 +819,12 @@ debug014:ACC11FC4 DCD 0xB
 debug014:ACC11FC8 DCD 0x34
 debug014:ACC11FCC DCD 0xCC033946
 
-調用完tmp1_vdata的函數f2
-debug014:ACC3A4C0 DCD 0xACC49480                          ; tmp1_vdata4
+調用完command_vdata的函數f2
+debug014:ACC3A4C0 DCD 0xACC49480                          ; command_vdata4
 debug014:ACC3A4C4 DCD 1
 debug014:ACC3A4C8 DCD 0x20
 
-debug014:ACC49480 DCD 0xACC11FC0                          ; tmp1_data4
+debug014:ACC49480 DCD 0xACC11FC0                          ; command_data4
 ---------------------------------------------------------------------------------------------------------------
 sub_E240‬()
 sub_e280()
@@ -828,7 +836,7 @@ debug014:ACC126A8 DCD 0x21A74169
 debug014:ACC126AC DCD 0
 
 debug014:ACC3A4E8 DCD 0xACC49500                          ; tm1_vdata5
-debug014:ACC49500 DCD 0xACC11FF0                          ; tmp1_data5; //最終指向16bitstruct
+debug014:ACC49500 DCD 0xACC11FF0                          ; command_data5; //最終指向16bitstruct
 
 
 debug014:ACC11FF0 DCD 1                                   ; 16bitstruct
@@ -838,9 +846,9 @@ debug014:ACC11FFC DCD 0x9254F0BC
 ---------------------------------------------------------------------------------------------------------------
 sub_B8B0()‬
 繼續調用complex_time_struct
-到此我先更新一下上面的tmp1_vdata和tmp1_data
+到此我先更新一下上面的command_vdata和command_data
 =============================================================================
-debug014:ACC3A3D0 DCD 0xACC49300                          ; tmp1_vdata1
+debug014:ACC3A3D0 DCD 0xACC49300                          ; command_vdata1
 debug014:ACC3A3D4 DCD 0 ; 代表無數據
 debug014:ACC3A3D8 DCD 0x20
 debug014:ACC3A3DC DCD 0xB3FA88F9
@@ -850,9 +858,9 @@ debug014:ACC3A3E8 DCD 0xB3FA8A81
 debug014:ACC3A3EC DCD 0xB3FA8AF1
 debug014:ACC3A3F0 DCD 0
 
-debug014:ACC49300 DCB    0                                ; tmp1_data1
+debug014:ACC49300 DCB    0                                ; command_data1
 =============================================================================
-debug014:ACC3A3A8 DCD 0xACC49280                          ; tmp1_vdata2
+debug014:ACC3A3A8 DCD 0xACC49280                          ; command_vdata2
 debug014:ACC3A3AC DCD 1 ; 代表存在一個數據
 debug014:ACC3A3B0 DCD 0x20
 debug014:ACC3A3B4 DCD 0xB3FA88F9
@@ -864,7 +872,7 @@ debug014:ACC3A3C8 DCD 0
 
 debug014:ACC49280 DCD 0xB4F01130                          ; tm1_data2
 =============================================================================
-debug014:ACC3A3F8 DCD 0xACC49380                          ; tmp1_vdata3
+debug014:ACC3A3F8 DCD 0xACC49380                          ; command_vdata3
 debug014:ACC3A3FC DCD 3 ; 代表存在三個數據
 debug014:ACC3A400 DCD 0x20
 debug014:ACC3A404 DCD 0xB3FA88F9
@@ -874,11 +882,11 @@ debug014:ACC3A410 DCD 0xB3FA8A81
 debug014:ACC3A414 DCD 0xB3FA8AF1
 debug014:ACC3A418 DCD 0
 
-debug014:ACC49380 DCD 0xACC125B0                          ; tmp1_data3
+debug014:ACC49380 DCD 0xACC125B0                          ; command_data3
 debug014:ACC49384 DCD 0xACC125E0
 debug014:ACC49388 DCD 0xACC126A0
 =============================================================================
-debug014:ACC3A4C0 DCD 0xACC49480                          ; tmp1_vdata4
+debug014:ACC3A4C0 DCD 0xACC49480                          ; command_vdata4
 debug014:ACC3A4C4 DCD 1 ; 代表存在一個數據
 debug014:ACC3A4C8 DCD 0x20
 debug014:ACC3A4CC DCD 0xB3FA88F9
@@ -888,7 +896,7 @@ debug014:ACC3A4D8 DCD 0xB3FA8A81
 debug014:ACC3A4DC DCD 0xB3FA8AF1
 debug014:ACC3A4E0 DCD 0
 
-debug014:ACC49480 DCD 0xACC11FC0                          ; tmp1_data4
+debug014:ACC49480 DCD 0xACC11FC0                          ; command_data4
 =============================================================================
 debug014:ACC3A4E8 DCD 0xACC49500                          ; tm1_vdata5
 debug014:ACC3A4EC DCD 1 ; 代表存在一個數據
@@ -900,35 +908,35 @@ debug014:ACC3A500 DCD 0xB3FA8A81
 debug014:ACC3A504 DCD 0xB3FA8AF1
 debug014:ACC3A508 DCD 0
 
-debug014:ACC49500 DCD 0xACC11FF0                          ; tmp1_data5
+debug014:ACC49500 DCD 0xACC11FF0                          ; command_data5
 =============================================================================
 邏輯中對比
-從8bitstruct -> tmp1_vdata -> chunk_count 和 1 對比， 循環
+從8bitstruct -> command_vdata -> chunk_count 和 1 對比， 循環
 {
-取chunk_count個對應的tmp1_data(即24bitstruct代表時間的結構體的第二個字段)逐一對比
+取chunk_count個對應的command_data(即24bitstruct代表時間的結構體的第二個字段)逐一對比
 }
 對比完成在創建上面提到的結構體
 24bitstruct = ACC12640
 
-debug014:ACC3A650 DCD 0xACC49580                          ; tmp1_vdata
+debug014:ACC3A650 DCD 0xACC49580                          ; command_vdata
 
 16bitstruct = ACC33030
 
 上面 ida 崩潰了，導致在分析變得有點混亂
 重新分析了一下結構：
 
-tmp1_vdata_list {
- struct tmp1_vdata** vdatalist;
+command_vdata_list {
+ struct command_vdata** vdatalist;
 }
 
-sub_9a14(tmp1_vdata* tmp1vdata, int t, int t1, int t2) {
-	if ( tmp1vdata->chunk_count >= 1) {
-		struct data** datalist = tmp1vdata->datalist;
-		for (int i = 0 ; i < tmp1vdata->chunk_count; i++) {
+sub_9a14(command_vdata* commandvdata, int t, int t1, int t2) {
+	if ( commandvdata->chunk_count >= 1) {
+		struct data** datalist = commandvdata->datalist;
+		for (int i = 0 ; i < commandvdata->chunk_count; i++) {
 			struct 24bitstruct* 24str = datalist[i];
 			if(24str->t == t) {
 				struct 8bitstruct* 8str = arg;
-				struct tmp1_vdata* vdata =  arg->vdata;
+				struct command_vdata* vdata =  arg->vdata;
 				int chunk_count = vdata->chunk_count;
 				if (chunk_count >= 1) {
 					struct 24bitstruct* 24str = vdata->datalist;
@@ -950,16 +958,16 @@ sub_9a14(tmp1_vdata* tmp1vdata, int t, int t1, int t2) {
 						24bitstr->sec = ?
 						
 						// 繼續調用sub_7B86C()‬
-						// 獲得tmp1_vdata* = ACC3A650
-						// 獲得tmp1_vdata->datalist = ACC4A400
+						// 獲得command_vdata* = ACC3A650
+						// 獲得command_vdata->datalist = ACC4A400
 						24bitstr->vdata = ACC3A650;
-						tmp1vdata->f2(,) // 0xACC4A200, 邏輯同上
+						commandvdata->f2(,) // 0xACC4A200, 邏輯同上
 						
 						
 						16bitstruct 16bitstr  = malloc(0x16); // ACC11DD0
-						繼續調用tmp1_vdata* = ACC3A650->f2(ACC3A650, ACC11DD0)
+						繼續調用command_vdata* = ACC3A650->f2(ACC3A650, ACC11DD0)
 						
-						tmp1_vdata*->datalist = 0xACC4A400[ACC11DD0];
+						command_vdata*->datalist = 0xACC4A400[ACC11DD0];
 						// (EOR.W           R0, R0, R11// R11 = B3E34921 )
 						16bitstr->sec = 24bitstr->time ^ r11; // 沒搞明白， 沒有EOR.W
 					}
@@ -975,7 +983,7 @@ sub_9a14(tmp1_vdata* tmp1vdata, int t, int t1, int t2) {
 sub_5F0F4‬()
 sub_5F11E‬()
 sub_9B3C‬() 略
-sub_7B93A‬() 相當於make_tmp1_vdata
+sub_7B93A‬() 相當於make_command_vdata
 
 ---------------------------------------------------------------------------------------------------------------
 sub_5F0F4(env, clazz)   // 無法命名同 sub_E7DC
@@ -1059,7 +1067,7 @@ sub_9b3c()
 ---------------------------------------------------------------------------------------------------------------
 sub_210E0
 sub_73D90‬() // 沒幹啥
-9A98‬() // goto_create_tmp1_vdata
+9A98‬() // goto_create_command_vdata
 sub_9b3c()
 sub_9b3c()
 sub_9b3c()
@@ -1175,7 +1183,7 @@ libsgmainso_6.4.36.so:B3EF7A78 dword_B3EF7A78 DCD 0xACB4A3D0
 // 0時取這個
 libsgmainso_6.4.36.so:B3EF7A7C dword_B3EF7A7C DCD 0xACB4A3A8
 /////////////////////////////////////////////////////////////////
-// 第一次w = 1 因此這個tmp1_vdata沒有用到
+// 第一次w = 1 因此這個command_vdata沒有用到
 debug021:ACB4A3A8 DCD 0xACB31C00
 debug021:ACB4A3AC DCD 0
 debug021:ACB4A3B0 DCD 0x20
@@ -1186,7 +1194,7 @@ debug021:ACB4A3C0 DCD 0xB3EE6A81
 debug021:ACB4A3C4 DCD 0xB3EE6AF1
 debug021:ACB4A3C8 DCD 0
 //////////////////////////////////////////////////////////////////
-// 用到了這個tmp1_vdata
+// 用到了這個command_vdata
 debug021:ACB4A3D0 DCD 0xACB31C80
 debug021:ACB4A3D4 DCD 1
 debug021:ACB4A3D8 DCD 0x20
@@ -1201,7 +1209,7 @@ debug021:ACB31C80 DCD 0xB4E01130
 //
 debug068:B4E01130 DCD 1
 debug068:B4E01134 DCD 0xACB4A3F8
-// tmp1_vdata1
+// command_vdata1
 debug021:ACB4A3F8 DCD 0xACB31D00
 debug021:ACB4A3FC DCD 0xC
 debug021:ACB4A400 DCD 0x20
@@ -1264,11 +1272,11 @@ BE89215C  B3E76771  libsgmainso_6.4.36.so:
 BE892160  ACB6A718  debug021:ACB6A718
 
 我們設command變量從外到内依次為a、b、c
-tmp1_vdata-> {datalistaddr, data_count, ...} 
+command_vdata-> {datalistaddr, data_count, ...} 
 datalist[0]->data[0]-> data{count, addr}->
-tmp1_vdata -> {datalistaddr, data_count, ...}->datalist[x]
-->24bitstruct{a, b, time(xorkey), ?, tmp1_vdata,?}->
-tmp1_vdata -> {datalistaddr, data_count, ...}->
+command_vdata -> {datalistaddr, data_count, ...}->datalist[x]
+->24bitstruct{a, b, time(xorkey), ?, command_vdata,?}->
+command_vdata -> {datalistaddr, data_count, ...}->
 16bitstruct{a, b, c, xoraddr}
 
 
@@ -1277,18 +1285,18 @@ sub_9854->sub_9A14‬(a, b, c, ...) // a = arg1, b = arg2, c =arg3
 //////////////////////////////////////////////////////////////
 // 第一次 sub_9D82(1, 0x17, 2, 1, command_arg, 一個棧變量指針)
 //////////////////////////////////////////////////////////////
-->sub_9d82(tmp1, tmp2, tmp3, w, ...) // command_native_inner；獲取下一步跳轉地址
+->sub_9d82(command, tmp2, tmp3, w, ...) // command_native_inner；獲取下一步跳轉地址
 
-// 首先找到全局tmp1_vdata最外層指針，相對文件偏移dword_8CA7C和dword_8CA78
+// 首先找到全局command_vdata最外層指針，相對文件偏移dword_8CA7C和dword_8CA78
 // 前面做處理時保存的, w!=0時取dword_8CA78，否則取dword_8CA7C
-// 這裏面有很多函數， 其中還包括正向建立tmp1_vdata過程，這裏略
+// 這裏面有很多函數， 其中還包括正向建立command_vdata過程，這裏略
 sub_9d82(int n1, int n2, int n3, int w,  struct command_arg* arg, int* next_addr) {
-	struct tmp1_vdata* vdata = &dword_8CA7C; 
+	struct command_vdata* vdata = &dword_8CA7C; 
 	if (w != 0) {
 		vdata = &dword_8CA78;
 	}
 	
-	// sub_9a14(tmp1_vdata, n1, n2, n3, w, 0)
+	// sub_9a14(command_vdata, n1, n2, n3, w, 0)
 	// 最外層
 	datalist = vdata->datalist;
 	
@@ -1308,7 +1316,7 @@ sub_9d82(int n1, int n2, int n3, int w,  struct command_arg* arg, int* next_addr
 		return 0x26b0;
 	}
 	//獲取第二層
-	struct tmp1_vdata* vdata1 = _8bitstruct->vdata;
+	struct command_vdata* vdata1 = _8bitstruct->vdata;
 	int count = vdata1->data_count;
 	i = 0;
 	struct $24bitstruct _24bitstr = NULL;
@@ -1327,7 +1335,7 @@ sub_9d82(int n1, int n2, int n3, int w,  struct command_arg* arg, int* next_addr
 	}
 	
 	// 獲取第三層
-	struct tmp1_vdata* vdata2 = _24bitstr->vdata;
+	struct command_vdata* vdata2 = _24bitstr->vdata;
 	count = vdata2->data_count;
 	i = 0;
 	struct $16bitstruct _16bitstr = NULL;
@@ -1376,7 +1384,7 @@ sp + 8 = 第二個數組元素對應的值
 [stack]:BE89211C DCD 1                                   ; jarray value 1
 [stack]:BE892120 DCD 1                                   ; jarray value 2
 [stack]:BE892124 DCD 0xB47A9038
-[stack]:BE892128 DCD 0xB3EF7A78                          ; tmp1_vdata1
+[stack]:BE892128 DCD 0xB3EF7A78                          ; command_vdata1
 [stack]:BE89212C DCD 0
 [stack]:BE892130 DCD 0xACB6A748 // ;command_arg
 // vvarg2
@@ -1581,7 +1589,7 @@ if (vvarg1[1] != 0)  { // 取第二個jarray的值， 這裏值為true
 ------------------------------------------------------------------------------------------------------
 經過這一系列的逆向發現原來sub_9B3C‬()這個函數是用來做函數地址和跳轉command處理的
 最後把處理結果保存在一系列的嵌套的結構體中
-這些結構體涉及上面提到的tmp1_vdata，data， 16bitstruct，24bitstruct等
+這些結構體涉及上面提到的command_vdata，data， 16bitstruct，24bitstruct等
 核心思路是把地址和一個隨機時間異或加密，然後把地址對應的command存儲在三層的結構體中
 ，這樣每次保持的地址和時間值都不一樣，，後面我會酌情花時間細緻的逆向。
 知道這些我們其實很容易把command和 跳轉地址記錄下來，不用走doCommandNative。
