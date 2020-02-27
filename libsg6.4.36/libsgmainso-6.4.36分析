@@ -666,8 +666,8 @@ debug014:ACC3A3C4 DCD 0xB3FA8AF1
 debug014:ACC3A3C8 DCD 0
 創建第二個data結構體ACC49280
 然後把它倆存儲在以下地方：
-off_8CA7C gcommand_vdata1 DCD 0xACC3A3D0
-off_8CA78 gcommand_vdata2 DCD 0xACC3A3A8
+off_8CA7C gcommand_vdata1 DCD 0xACC3A3D0, do_command 第四個參數為0，查找
+off_8CA78 gcommand_vdata2 DCD 0xACC3A3A8, do_command 第四個參數為1，生成
 在off_90804処保存global_command_entry指針
 ---------------------------------------------------------------------------------------------------------------
 bl sub_71D68()‬,重命名為goto_do_SPUtility2
@@ -708,8 +708,48 @@ sub_E890‬()
 off_8CA94 global_DeviceInfoCapturer_methodId DCD 0x75F27048
 off_8CA98 global_DeviceInfoCapturer_ref DCD 0xB6F33E04
 
+#########################################################################################
+#sub_9B3C
+‬這是一個重要的函數，每個command依賴的數據結構都需要經過它來生成
+這個函數經過了llvm混淆，在不去掉llvm混淆時分析起來還是比較費勁的。
+command 最主要的參數是三個：
+command / 10000 ; // n1
+command % 10000 / 100 ; // n2
+command % 100 ; // n2
+由此三個參數構成了三層結構(由外向内順序是n1->n2->n3)，其中最終的加密后的地址保存在
+n3層結構中（只是異或加密），解密密匙保存在n2層結構中（是用time做種子生成的隨機數，
+每次都不一樣，每個app可能都不一樣）。
 
-sub_9B3C‬(), 不知道在幹嘛，一堆跳和賦值，感覺向被llvm混淆過，
+每個command相關地址并不是函數的實際地址（是包含實際地址的封裝），是執行函數的一個入口（梉），
+這個入口需要進一步做處理才能跳轉到實際函數的地址。
+一個函數會被分成不同的塊，由n3層結構決定，例如：
+command(1, 17, 1) { // 隨便假設的
+	stub2->do_command_parser->real_func_addr
+	stub1->do_command_parser->real_func_addr
+	stub3->do_command_parser->real_func_addr
+	stub4->do_command_parser->real_func_addr
+}
+在上面的分析中我們已經看到它生成了一個全局的command_entryptr，它記錄著生產command相關結構
+和反向按結構找到梉的算法。
+同時還生成了兩個gcommand_vdata1和gcommand_vdata2的n1第一層指針結構（分別為查找和生成時使用）
+
+主要結構如下（僞定義）：
+
+n1 -> first struct{8 bit: n2_addr, count} -> n2 -> second {24 bit: n3_addr, count} -> n3 ->
+third {16 bit: stub_addr, count}
+
+無論是正向生成command相關結構，還是反向依賴參數查找結構都需要這三個參數
+1、正向生成command相關結構，傳遞的參數是1
+2、反向查找command相關結構，傳遞的參數是0
+
+#後續在酌情添加
+開始分析：
+sub_9B3C‬() // goto_make_command_entry
+
+#########################################################################################
+
+
+
 sub_9854() 它會記錄時間
 struct $8bitstruct {
 	int command_arg1; // command arg1
