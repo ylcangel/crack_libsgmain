@@ -19,19 +19,19 @@ int __fastcall real_JNI_OnLoad(JavaVM *vm) {
    if ( clazz     && 
    (sub_9EE4(),  // goto_create_tmp1vdata_       
    sub_71D68(env), // goto_do_SPUtility2
-   sub_E7DC(env) >= 0   // 處理了DeviceInfoCapturer，還生成了很多結構體，無法命名
+   sub_E7DC(env) >= 0   // 處理了DeviceInfoCapturer，pack_or_unpack_command
    && sub_69D68(env) >= 0   // 啥也沒乾
-   && sub_197B4(env, clazz) >= 0   // 處理了DataReportJniBridgerer，還生成了很多結構體，無法命名同 sub_E7DC
-   && sub_E240(env, clazz) >= 0    // 無法命名同 sub_E7DC
-   && sub_B8B0(env, clazz) >= 0    // 無法命名同 sub_E7DC
-   && sub_5F0F4(env, clazz) >= 0   // 無法命名同 sub_E7DC
-   && sub_70640(env, clazz) >= 0   // 無法命名同 sub_E7DC
+   && sub_197B4(env, clazz) >= 0   // 處理了DataReportJniBridgerer，pack_or_unpack_command
+   && sub_E240(env, clazz) >= 0    // pack_or_unpack_command
+   && sub_B8B0(env, clazz) >= 0    // pack_or_unpack_command
+   && sub_5F0F4(env, clazz) >= 0   // pack_or_unpack_command
+   && sub_70640(env, clazz) >= 0   // pack_or_unpack_command
    && sub_11F3C(env) >= 0   // 處理android相關類
-   && sub_21C3C(env, clazz) >= 0   // 無法命名同 sub_E7DC
-   && sub_2148C(env, clazz) >= 0   // 無法命名同 sub_E7DC
-   && sub_210E0(env, clazz) >= 0  //  無法命名同 sub_E7DC
-   && sub_41B58(env, clazz) >= 0     //  無法命名同 sub_E7DC
-   && sub_27920(env, clazz) >= 0    //  無法命名同 sub_E7DC
+   && sub_21C3C(env, clazz) >= 0   // pack_or_unpack_command
+   && sub_2148C(env, clazz) >= 0   // pack_or_unpack_command
+   && sub_210E0(env, clazz) >= 0  //  pack_or_unpack_command
+   && sub_41B58(env, clazz) >= 0     //  pack_or_unpack_command
+   && sub_27920(env, clazz) >= 0    //  pack_or_unpack_command
    && sub_293E8(env, clazz) >= 0    // 處理ZipUtils、CallbackHelper和android相關類
    && sub_208F4(env, clazz) >= 0) ) // 處理UserTrackMethodJniBridge
    {     

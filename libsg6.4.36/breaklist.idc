@@ -19,9 +19,9 @@ static main(void)
 	}
 	
 	bpt = Breakpoint();
-	bpt.set_abs_bpt(libsgmain_base + 0x7B86C); // create_tmp1_vdata
+	bpt.set_abs_bpt(libsgmain_base + 0x7B86C); // create_command_vdata
 	Breakpoints.Add(bpt);
-	Message("create_tmp1_vdata %x\n", (libsgmain_base + 0x7B86C));
+	Message("call create_command_vdata %x\n", (libsgmain_base + 0x7B86C));
 
 	bpt = Breakpoint();
 	bpt.set_abs_bpt(libsgmain_base + 0x73ed8); // goto_dcrypto
@@ -33,7 +33,17 @@ static main(void)
 	Breakpoints.Add(bpt);
 	Message("call memcpy %x\n", (libsgmain_base + 0x73eec));
 	
-   
+	bpt = Breakpoint();
+	bpt.set_abs_bpt(libsgmain_base + 0x9a14); // build_command
+	Breakpoints.Add(bpt);
+	Message("call build_command %x\n", (libsgmain_base + 0x9a14));
+	
+	bpt = Breakpoint();
+	bpt.set_abs_bpt(libsgmain_base + 0x9D82); // do_command_native_inner
+	Breakpoints.Add(bpt);
+	Message("call memcpy %x\n", (libsgmain_base + 0x9D82));
+	
+  
     bpt = Breakpoint();
 	bpt.set_abs_bpt(libsgmain_base + 0x7C4F4); // 創建全局objects
 	Breakpoints.Add(bpt);

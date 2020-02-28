@@ -1,54 +1,55 @@
-signed int sub_7B93A(tmp1_vdata *a1, int a2, int a3)
-{ // 參數2好像代表chunk偏移，參數3為數據起始地址
-  tmp1_vdata *v3; // r4@1
-  int v4; // r9@1
+signed int __fastcall make_command_vdata(command_vdata *vdata, int index, $8bitstruct *a3)
+{
+  command_vdata *gcommand_build_vdata; // r4@1
+  $8bitstruct *first_8bitstr_ptr; // r9@1
   int v5; // r6@1
   signed int result; // r0@2
-  int v7; // r1@3
-  int v8; // r0@5
-  int v9; // r8@6
+  int data_count; // r1@3
+  int new_extend_data; // r0@5
+  int data_size; // r8@6
   int v10; // r0@8
   int v11; // r2@8
 
-  v3 = a1;
-  v4 = a3;
-  v5 = a2;
-  if ( !a1 )
+  gcommand_build_vdata = vdata;
+  first_8bitstr_ptr = a3;
+  v5 = index;
+  if ( !vdata )
     return 0;
   result = 0;
-  if ( a2 < 0 )
+  if ( index < 0 )
     return result;
-  v7 = v3->lastoff;
-  if ( v7 < v5 )
+  data_count = gcommand_build_vdata->data_count;
+  if ( data_count < v5 )
     return result;
-  if ( v7 == v3->chunk_size )
+  if ( data_count == gcommand_build_vdata->data_size )
   {
-    v8 = ((int (__fastcall *)(struct data *, int))realloc)(v3->data, 4 * v7 + 128);
-    if ( v8 )
+    new_extend_data = realloc(gcommand_build_vdata->datalist, 4 * data_count + 128);
+    if ( new_extend_data )
     {
-      v3->data = (struct data *)v8;
-      v9 = v3->chunk_size;
-      ((void (__fastcall *)(int, signed int))memset2)(v8 + 4 * v9, 128);
-      v3->chunk_size = v9 + 32;
-      v7 = v3->lastoff;
+      gcommand_build_vdata->datalist = (struct data **)new_extend_data;
+      data_size = gcommand_build_vdata->data_size;
+      memset(new_extend_data + 4 * data_size, 128);
+      gcommand_build_vdata->data_size = data_size + 32;
+      data_count = gcommand_build_vdata->data_count;
       goto LABEL_7;
     }
     return 0;
   }
 LABEL_7:
-  if ( v7 != v5 )
-  {
-    v10 = v5 - v7;
-    v11 = v7;
+  if ( data_count != v5 )
+  { // 雖然這段代碼可能不會執行，但是感覺這段代碼明顯存在bug
+	// 應該是while(v10) 可能永遠為true
+    v10 = v5 - data_count;
+    v11 = data_count;
     do
     {
       ++v10;
-      v3->data[v11].d = v3->data[v11 - 1].d;
+      gcommand_build_vdata->datalist[v11] = gcommand_build_vdata->datalist[v11 - 1];
       --v11;
     }
     while ( v10 );
   }
-  v3->data[v5].d = (char *)v4;
-  v3->lastoff = v7 + 1;
+  gcommand_build_vdata->datalist[v5] = (struct data *) first_8bitstr_ptr;
+  gcommand_build_vdata->data_count = data_count + 1;
   return 1;
 }

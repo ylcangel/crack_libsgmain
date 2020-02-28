@@ -81,26 +81,26 @@ struct command_vdata {
 	int data_count;
 	int data_size;
 	void* f1;
-	void* f2;
+	void* f2; // make_vdata
 	void* f3;
 	struct command_nest* nest;
 };
 
-struct $8bitstruct {
+struct $8bitstruct { // 第一層結構
 	int command_arg1; // command arg1
-	struct tmp1_vdata* vdata; // 指向第二層
+	struct command_vdata* vdata; // 指向第二層
 };
 
-struct $24bitstruct {
+struct $24bitstruct { // 第二層結構
 	int command_arg1; // command arg1
 	int command_arg2; // command arg2
 	long time;
-	int c; // 未知
-	struct tmp1_vdata* vdata; // 指向第三層
+	int c; // (time >> 31)
+	struct command_vdata* vdata; // 指向第三層
 	int d; // 未知
 };
 
-struct $16bitstruct {
+struct $16bitstruct { // 第三層結構
 	int command_arg1; // command arg1
 	int command_arg2; // command arg2
 	int command_arg3; // command arg3
