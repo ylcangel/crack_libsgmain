@@ -1538,14 +1538,12 @@ if (vvarg1[1] != 0)  { // 取第二個jarray的值， 這裏值為true
 	30A04->sub_30A38(1)->
 	2D504->sub_2D668(1)->2AC60->sub_2AC8A() ; // get_dword_8CE0C_classid
 	// B3E986A2 BL              sub_B3E9DC00
-	獲得dword_8CE0C = 0x1003F6
+	獲得dword_8CE0C = 0x1003F6; CallbackHelper
 	再次調用32C00略 // 返回0, 實際也沒看到做什麽實質動作
 	獲取env，sub_2D6B8調用解密
-	// 沒有連續性，不知道暫時是哪個類
 	解密出"onCallBack"， "(ILjava/lang/String;I)V"
 	調用GetStaticMethodID(env, 0x1003F6, "onCallBack");
 	調用CallStaticVoidMethod(JNIEnv*, 0x1003F6, onCallBack, 1, NULL, 0x386); 
-	// 我這裏沒有實現所謂的什麽callback，程序就停止了
 	
 ------------------------------------------------------------------------------------------------------
 經過這一系列的逆向發現原來sub_9B3C‬()這個函數是用來做建立和查找command處理的
