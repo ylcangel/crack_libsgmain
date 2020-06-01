@@ -63,7 +63,7 @@ int decrypto(struct dcryptdata* decryptdata_, int* a2) {
       result = ((int (__fastcall *)(struct vdata *))call_md5)(decryptdata_->cryptedata);
       break;
     case 0x17u:
-      result = ((int (__fastcall *)(struct vdata *, struct vdata *))unk_A409AE54)(decryptdata_->key, decryptdata_->cryptedata);
+      result = ((int (__fastcall *)(struct vdata *, struct vdata *))call_hmac_sha1)(decryptdata_->key, decryptdata_->cryptedata);
       break;
     case 0x18u:
       result = ((int (__fastcall *)(struct vdata *))call_sha1)(decryptdata_->cryptedata);
@@ -72,7 +72,7 @@ int decrypto(struct dcryptdata* decryptdata_, int* a2) {
       result = ((int (__fastcall *)(struct vdata *))call_sha256)(decryptdata_->cryptedata);
       break;
     case 0x1Au:
-      result = (int)sub_A409E338((int)decryptdata_->v, (int)decryptdata_->v1, (int)decryptdata_->cryptedata, v4);
+      result = (int)call_sgcustom((int)decryptdata_->v, (int)decryptdata_->v1, (int)decryptdata_->cryptedata, v4);
       break;
 	      default:
 			result = 0;
